@@ -1,0 +1,1 @@
+This was built against the 1.5.4.1-final branch and includes the following modules: cjson, encoder, file, gpio, http, net, node, pwm, sntp, tmr, uart, wifi.
