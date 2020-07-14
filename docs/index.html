@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<title>Rel&oacute;gio BICM</title>
+</head>
+<body>
+
+<h1>Projeto Rel&oacute;gio BICM</h1>
+
+<p>DOCUMENTO EM EDIÇÃO. NÃO ESTÁ PRONTO.</P>
+
+<p>Este documento descreve o software e hardware usado no 
+mecanismo do relógio da torre da Basílica do Imaculado Cora&ccedil;&atilde;o de Maria.</p>
+
+<h2>Componentes do Hardware</h2>
+<ul>
+<li><a href="redutor_linha-gsa_10.pdf">Redutor GSA 51</a></li>
+<li>módulo ESP-12 (ESP8266 chip)</li>
+
+<h2>Software do ESP8266</h2>
+<p>A programa&ccedil;&atilde;o do ESP8266 foi feita usando a linguagem LUA sobre um firmware NodeMCU customizado.</p>
+ 
+ - <a href="https://nodemcu.readthedocs.io/en/master/">NodeMCU - Documenta&ccedil;&atilde;o</a>
+ - <a href="">Documenta&ccedil;&atilde;o da Linguagem de Programação LUA</a>
+
+<h2>Build do NodeMCU</h2>
+<p>Utilizei o <a href="https://nodemcu-build.com/">NodeMCU custom builds para 
+criar um firmware customizado com os módulos necessários para controlar o 
+mecanismo do relógio da Igreja.</p>
+
+<p>Os módulos escolhidos foram:</p>
+<ul>
+<li>cjson</li>
+<li>encoder</li>
+<li>file</li>
+<li>GPIO</li>
+<li>http</li>
+<li>net</li>
+<li>node</li>
+<li>pwm</li>
+<li>sntp</li>
+<li>tmr</li>
+<li>uart</li>
+<li>WiFi</li>
+</ul>
+
+</body>
+</html>
