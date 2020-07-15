@@ -7,10 +7,12 @@ do
 
   require("app_led")
   require("motor")
-  require("ponteiros")
+  require("encoder")
   require("relogioInternet")
 
   require("app_wifi")
+
+  led.piscar("loading")
 
   -- conecta no WIFI para pegar a hora
 	
@@ -24,7 +26,16 @@ do
 	print("Falha motor/encoder nao responde.")
 	motor.desligar()
 	falhaMotor = true
-	-- TODO piscar LED rapidamente.
+	led.piscar("error")
+  end
+
+  local function calcDif(gmin1, gmin2) 
+    difGMINReverse = gmin1-gmin2 -- se +, roda ccw para ajuste
+    difGMINForward = gmin1-(720+gmin2) -- se +, roda cw para ajuste
+    if math.abs(difGMINReverse) > math.abs(difGMINForward) then
+      return difGMINForward
+    end
+    return difGMINReverse
   end
 
   local function acionaPonteiro(ptrTimer)
@@ -40,9 +51,9 @@ do
        
     
     local difGMIN = -1
-    if (ponteiros.GMIN()~=nil and rtcGMIN~=nil) then 
+    if (encoder.GMIN()~=nil and rtcGMIN~=nil) then 
        -- calcula atraso ou adianto
-       difGMIN = ponteiros.GMIN()-rtcGMIN
+       difGMIN = calcDif(encoder.GMIN(), rtcGMIN)
        print("L-dif GMIN:" .. difGMIN)       
     end
     
@@ -71,20 +82,22 @@ do
       print("problemas no ponteiroTimer")
   end
 
-  local function ponteirosOnChange(GMIN, ptrMin, ptrHora)
+  local function encoderOnChange(GMIN, ptrMin, ptrHora)
 
     local difGMIN = 0
     if (GMIN~=nil and rtc.GMIN()~=nil) then 
        -- calcula atraso ou adianto
-       difGMIN = GMIN-rtc.GMIN()
+       difGMIN = calcDif(GMIN, rtc.GMIN())
        print("D-dif GMIN:" .. difGMIN)       
     end
 
     if isBuscaHora then
       if ptrHora ~= nil then
+         print("Hr def.")
          motor.desligar()
          isBuscaHora = false
          ponteiroTimer:start()
+         led.piscar("normal")
       end
     else
         if (ptrMin == (minutoAlvo or ptrMin)) then
@@ -96,13 +109,14 @@ do
     		  minutoAlvo = nil
               motor.desligar()
               ponteiroTimer:start()
+              led.piscar("normal")
     		end
     	end
     end
-	print(ponteiros.toStr())
+	print(encoder.toStr())
   end
 
-  ponteiros.init( ponteirosOnChange )
+  encoder.init( encoderOnChange )
 
 
   -- move o ponteiro ate chegar ao minuto zero
@@ -128,19 +142,19 @@ do
     ponteiroTimer:stop()
     motor.ligarClockwise()
     isBuscaHora = true
+    led.piscar("fast")
   end
   
   local function buscarHoraCCW()
     ponteiroTimer:stop()
     motor.ligarCounterClockwise()
     isBuscaHora = true
+    led.piscar("fast")
   end
 
   local function release()
     ponteiroTimer:stop()
     ponteiroTimer:unregister()
-    piscaLedTimer:stop()
-    piscaLedTimer:unregister()
     print("r.release()")
   end
 
@@ -149,10 +163,13 @@ do
   r.minutoAlvo = getMinutoAlvo
   r.pausar = pausar
   r.continuar = continuar
-  r.ponteirosOnChange = ponteirosOnChange
+  r.encoderOnChange = encoderOnChange
   r.release = release
   r.buscarHoraCW = buscarHoraCW
   r.buscarHoraCCW = buscarHoraCCW
+
+  
+  buscarHoraCW()
 
 end
 

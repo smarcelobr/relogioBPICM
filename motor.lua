@@ -39,10 +39,6 @@ do
 
 
   local function ligarClockwise()
-    if (isEmMovimento()) then
-      print('deve desligar motor');
-      return
-    end
 	-- Aciona o motor
 	status = 1 -- clockwise
 	gpio.write(pinMotor1, gpio.HIGH)
@@ -52,10 +48,6 @@ do
   end    
 	
   local function ligarCounterClockwise()
-    if (isEmMovimento()) then
-      print('deve desligar motor');
-      return
-    end
     -- Aciona o motor
     status = 2 -- counterclockwise
     ligando = true
