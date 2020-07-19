@@ -156,7 +156,7 @@ do
                      pMinuto = 0
                   else 
                      -- ccw
-                     pMinuto = 46
+                     pMinuto = 45
                   end
                   if (pHora == nil) then
                     -- acerta a hora
