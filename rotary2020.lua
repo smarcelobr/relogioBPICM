@@ -172,5 +172,3 @@ do
   buscarHoraCW()
 
 end
-
-

@@ -43,7 +43,7 @@ do
     h0610= 10
     }
 
-    local HorMinCode = {minCount = 0,                        
+    local HorMinCode = {minCount = 100,                        
                         minArray = {},
                         currHour = 'n/a'
                         }
@@ -209,4 +209,3 @@ do
   encoder.code = HorMinCode
   
 end
-
