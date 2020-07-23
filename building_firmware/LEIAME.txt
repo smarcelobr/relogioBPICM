@@ -1,0 +1,38 @@
+** BUILDING FIRMWARE **
+comandos para compilar o firmware do nodemcu no RASPBERRY:
+
+$ export PATH=$PATH:/home/pi/aplicativos/esp8266-linux-arm_32-20191111.0/bin
+
+$ make TOOLCHAIN_ROOT=~/xtensa/esp8266-linux-arm_32-20191111.0/
+
+(ref.: https://github.com/nodemcu/nodemcu-firmware/issues/2958)
+
+
+
+** FLASHING FIRMWARE **
+Para saber o tamanho do FLASH:
+$ cd /home/pi/.local/lib/python3.7/site-packages
+$ python3.7 esptool.py --port /dev/ttyUSB0 flash_id
+
+Para fazer a gravação do firmware (flashing):
+
+esptool.py --port <serial-port-of-ESP8266> write_flash -fm <flash-mode> 0x00000 <nodemcu-firmware>.bin
+
+$ cd /home/pi/.local/lib/python3.7/site-packages
+$ python3.7 esptool.py --port /dev/ttyUSB0 write_flash -fm dio 0x00000 /home/pi/github/nodemcu-firmware/bin/0x00000.bin
+$ esptool.py --port /dev/ttyUSB0 write_flash -fm dio 0x10000 /home/pi/github/nodemcu-firmware/bin/0x10000.bin
+
+** Fazendo a imagem do LFS ***
+
+$ cd /home/pi/esp8266/projetos/relogioBPICM/lfs
+$ /home/pi/github/nodemcu-firmware/luac.cross.int -o lfs.img -f *.lua
+
+** UPLOAD arquivos para SPIFFS **
+
+$ nodemcu-tool upload --port=/dev/ttyUSB0 lfs.img
+
+Toda a vez que atualizar a imagem do LFS, deve executar o seguinte comando no nodemcu:
+
+> node.flashreload("lfs.img")
+
+O nodemcu vai resetar automaticamente.

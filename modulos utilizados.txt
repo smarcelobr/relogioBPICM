@@ -1,0 +1,14 @@
+
+Módulos e parâmetros usados para o projeto do relogio2020:
+
+file, (usado)
+gpio, (usado)
+http, (em duvida se será usado no lugar de net)
+net,  (em duvida se será usado no lugar de http)
+node, (usado para LFS)
+rtctime, (usado e exigido por sntp)
+sjson (provavelmente será usado)
+sntp (usado. Exige rtctime)
+tmr (usado)
+uart (usado comunicacao com PC)
+wifi (comunicacao com internet)

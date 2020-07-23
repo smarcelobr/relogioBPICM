@@ -1,29 +1,25 @@
 do 
-        function startup()
-            if file.open("rotary2020.lua") == nil then
-                print("rotary2020.lua foi apagado ou renomeado.")
-            else
-                print("Running")
-                file.close("rotary2020.lua")
-                -- the actual application is stored in 'application.lua'
-                dofile("rotary2020.lua")
-            end
-        end
+
+  function startup()
+    if file.open("ok.flag") == nil then
+	print("ok.flag foi apagado ou renomeado.")
+    else
+	print("Running")
+	file.close("ok.flag")
+	-- the actual application is stored in 'application.lua'
+	pcall(node.flashindex("_init"))
+        LFS.rotary2020()
+    end
+  end
+
+  print("Se quiser cancelar a inicialização, digite rapidamente:")
+  print("file.rename('ok.flag','not_ok.flag')")
+  print("Waiting ...")
+  
+  tmrStartup = tmr.create()
+  if not tmrStartup:alarm(20*1000, tmr.ALARM_SINGLE, startup) -- 20 segundos
+  then  
+    print("init.lua: Problemas no tmrStartup")
+  end
         
-        uart.setup(0,115200,8,0,1,0)
-        
-        require("motor")
-        -- antes de tudo, desligar os reles que controlam o motor
-        motor.desligar()
-          
-        file.remove('rotary2020.paused')
-        print("Se quiser cancelar a inicialização, digite rapidamente:")
-        print("file.rename('rotary2020.lua','rotary2020.paused')")
-        print("You have 20 seconds to abort")
-        print("Waiting...")
-        tmrStartup = tmr.create()
-        if not tmrStartup:alarm(20*1000, tmr.ALARM_SINGLE, startup) -- 10 segundos
-        then  
-            print("init.lua: Problemas no tmrStartup")
-        end
 end

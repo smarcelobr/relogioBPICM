@@ -2,7 +2,6 @@ print("loading wifi")
 require("relogioInternet")
   
   wifi.sta.disconnect()
-  wifi.eventmon.register( wifi.eventmon.STA_CONNECTED, rtc.wifiOnConnect )
   wifi.setmode(wifi.STATION)
   wifi.sta.autoconnect(0) -- desabilita a conexao automatica  
   

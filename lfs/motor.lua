@@ -14,15 +14,15 @@ do
 
 	local status, pinLigando = 0, -1
 
-  local function isClockwise()
+  motor.isClockwise = function ()
     return status==1
   end
 
-  local function isCounterClockwise()
+  motor.isCounterClockwise = function ()
     return status==2
   end
 
-  local function isEmMovimento()
+  motor.isEmMovimento = function ()
     return status ~= 0
   end
 
@@ -38,7 +38,7 @@ do
       end)
 
 
-  local function ligarClockwise()
+  motor.ligarClockwise = function ()
 	-- Aciona o motor
 	status = 1 -- clockwise
 	gpio.write(pinMotor1, gpio.HIGH)
@@ -47,7 +47,7 @@ do
     motorTmr:start()    
   end    
 	
-  local function ligarCounterClockwise()
+  motor.ligarCounterClockwise = function ()
     -- Aciona o motor
     status = 2 -- counterclockwise
     ligando = true
@@ -57,7 +57,7 @@ do
     motorTmr:start()    
   end
 
-  local function desligar()
+  motor.desligar = function ()
 	-- desliga o motor
     pinLigando = -1
     gpio.write(pinMotor1, gpio.HIGH)
@@ -65,18 +65,10 @@ do
 	status = 0
   end
 
-  local function release()
+  motor.release = function ()
     motorTmr:stop()
     motorTmr:unregister()
     print("motor.release()")
   end
-  
-  motor.isClockwise = isClockwise
-  motor.isCounterClockwise = isCounterClockwise
-  motor.isEmMovimento = isEmMovimento
-  motor.ligarClockwise = ligarClockwise
-  motor.ligarCounterClockwise = ligarCounterClockwise
-  motor.desligar = desligar
-  motor.release = release
   
 end

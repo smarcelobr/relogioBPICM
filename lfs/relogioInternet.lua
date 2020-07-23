@@ -45,8 +45,9 @@ do
 		SntpSyncTentativas = SntpSyncTentativas + 1
 	end
   end
+  wifi.eventmon.register( wifi.eventmon.STA_CONNECTED, wifiOnConnect )
 
-  local function calcGMIN()
+  rtc.GMIN = function ()
     if (not sucesso) then
       return nil
     end 
@@ -55,7 +56,7 @@ do
     return ((tm["hour"]%12)*60) + tm["min"], tm["sec"]
   end
 
-  local function toStr()
+  rtc.toStr = function ()
     if (not sucesso) then
       print('n/a')
     end 
@@ -67,9 +68,5 @@ do
       tm["hour"], tm["min"], tm["sec"])
   end
 
- 
-  rtc.wifiOnConnect = wifiOnConnect
-  rtc.GMIN = calcGMIN
-  rtc.toStr = toStr
-  
+
 end

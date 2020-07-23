@@ -5,12 +5,14 @@ end
 r = {}
 do
 
-  require("app_led")
   require("motor")
-  require("encoder")
-  require("relogioInternet")
-
+  motor.desligar()
+  require("app_led")
   require("app_wifi")
+  require("relogioInternet")
+  require("encoder")
+  require("telnet"):open()
+--  require("rotarysvc").init()
 
   led.piscar("loading")
 
@@ -168,7 +170,6 @@ do
   r.buscarHoraCW = buscarHoraCW
   r.buscarHoraCCW = buscarHoraCCW
 
-  
   buscarHoraCW()
 
 end
