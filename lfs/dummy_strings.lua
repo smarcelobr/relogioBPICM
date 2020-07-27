@@ -36,4 +36,8 @@ local preload = "?.lc;?.lua", "/\n;\n?\n!\n-", "@init.lua", "_G", "_LOADED",
 "loader", "loaders", "loadlib", "module", "net.tcpserver", "net.tcpsocket",
 "net.udpsocket", "newproxy", "package", "pairs", "path", "preload", "reload",
 "require", "seeall", "wdclr", "not enough memory", "sjson.decoder","sjson.encoder",
-"tmr.timer"
+"tmr.timer","%q","'","' = '",",","=stdin","Lua 5.1","RAM","Running","Setting '",
+"_VERSION","__metatable","a","bar","decoder","foo","kv","local preload=",
+"ok.flag","ok.flag foi apagado ou renomeado.","pcall","rawset","startup",
+"stdin","tmrStartup","tostring"
+

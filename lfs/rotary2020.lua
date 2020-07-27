@@ -7,8 +7,10 @@ do
 
   require("motor")
   motor.desligar()
+  require("util")
   require("app_led")
   require("app_wifi")
+  require("gdate")
   require("relogioInternet")
   require("encoder")
   require("telnet"):open()
@@ -32,12 +34,20 @@ do
   end
 
   local function calcDif(gmin1, gmin2) 
-    difGMINReverse = gmin1-gmin2 -- se +, roda ccw para ajuste
-    difGMINForward = gmin1-(720+gmin2) -- se +, roda cw para ajuste
-    if math.abs(difGMINReverse) > math.abs(difGMINForward) then
-      return difGMINForward
+    -- se +, roda ccw para ajuste
+    -- se -, roda cw para ajuste
+    local difs = {gmin1-gmin2,
+                  gmin1-(720+gmin2),
+                  (gmin1+720)-gmin2
+                  }
+
+    local menorDif = difs[1]
+    for i,dif in ipairs(difs) do
+      if math.abs(menorDif) > math.abs(dif) then
+        menorDif = dif
+      end
     end
-    return difGMINReverse
+    return menorDif
   end
 
   local function acionaPonteiro(ptrTimer)
@@ -79,7 +89,7 @@ do
 
   -- aciona o ponteiro a cada minuto do raspberry
   local ponteiroTimer = tmr.create() 
-  if not ponteiroTimer:alarm(5*1000, tmr.ALARM_AUTO, acionaPonteiro) -- a cada minuto
+  if not ponteiroTimer:alarm(60*1000, tmr.ALARM_AUTO, acionaPonteiro) -- a cada minuto
   then  
       print("problemas no ponteiroTimer")
   end
@@ -115,7 +125,7 @@ do
     		end
     	end
     end
-	print(encoder.toStr())
+	  print(encoder.ptr.toStr())
   end
 
   encoder.init( encoderOnChange )

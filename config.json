@@ -1,0 +1,26 @@
+{
+  "wifi": {
+    "sta": {
+      "ssid": "jardimdomeier",
+      "pwd": "sergioeluciene",
+      "save": false
+    },
+    "ap": {
+      "ssid":"Relogio Santa Fe",
+      "pwd": "jose1903",
+      "auth": 2,
+      "channel": 1,
+      "save": false
+    }
+  },
+  "rtc": {
+      "dif": [
+         {"epoch":1549850400, "dif": -180},
+         {"epoch":1541556000, "dif": -120},
+         {"epoch":0, "dif": -180}
+      ]
+  },
+  "encoder": {
+      "dif": 32
+  }
+}

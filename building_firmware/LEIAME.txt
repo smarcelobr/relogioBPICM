@@ -1,5 +1,10 @@
 ** BUILDING FIRMWARE **
-comandos para compilar o firmware do nodemcu no RASPBERRY:
+Primeiro, deve-se fazer as mudanças nos arquivos de header (.h)
+como o user_config.h, user_modules.h e outros. Os arquivos que 
+alterei para o projeto do  relógio estão na mesma página que esse 
+LEIAME.txt.
+
+Comandos para compilar o firmware do nodemcu no RASPBERRY:
 
 $ export PATH=$PATH:/home/pi/aplicativos/esp8266-linux-arm_32-20191111.0/bin
 

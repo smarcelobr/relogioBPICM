@@ -1,5 +1,6 @@
 print("loading encoder")
 require("motor")
+require("configuracoes")
 
 encoder = {}
 do
@@ -8,10 +9,11 @@ do
 	gpio.mode(pinMinuto,gpio.INT,gpio.PULLUP)
 	gpio.mode(pinHora,gpio.INPUT,gpio.PULLUP)
 
-	local pMinuto = 0;
-	local pHora = nil;
+	local pMinuto = 0;  -- valor dos minutos no encoder (sem diferenca)
+	local pHora = nil;  -- valor das horas no encoder (sem diferenca)
 	local fOnChange = nil;
     local lastHrLevel = gpio.read(pinHora)
+    local difMinutos = 0 -- diferença entre a hora do encoder e dos ponteiros (em minutos)
 
     local cwHTbl = { -- clockwise table
     h0246810 = 0,
@@ -72,7 +74,7 @@ do
  
   local function calcGMIN()
     -- usando 'and', se pHora é nil, retorna nil.
-    return pHora and (((pHora%12)*60) + pMinuto)
+    return pHora and (((pHora%12)*60) + pMinuto + difMinutos) % 720
   end
 
     local function OnHoraDetected(level)
@@ -183,27 +185,67 @@ do
     return pMinuto
   end
 
-  local function setMin(newMinuto)
-    pMinuto = newMinuto
+  encoder.ptr = {} -- funcoes para calcular a diferenca com ponteiros
+  encoder.ptr.set = function (hora, minuto)
+    if (pHora == nil) then
+       print("Hora do encoder ainda é desconhecida.")
+       return false
+    end
+    -- calcula apenas a diferenca entre o encoder os ponteiros
+    local difMinutosForward = ((hora*60)+minuto) - ((pHora*60)+pMinuto)
+    local difMinutosReverse = ((hora*60)+minuto) - ((pHora*60)+pMinuto+720)
+    if math.abs(difMinutosReverse) > math.abs(difMinutosForward) then
+      difMinutos = difMinutosForward
+    else 
+      difMinutos = difMinutosReverse
+    end
+    
+    -- TODO gravar no arquivo config.json para ficar permanentemente registrado
+  end
+ 
+  encoder.ptr.getHora = function ()
+    if pHora == nil then
+       return nil
+    end
+    return (math.floor(((pHora*60)+pMinuto+difMinutos)/60) % 12)
+  end
+
+  encoder.ptr.getMinuto = function ()
+    if pHora == nil then
+       return nil
+    end
+    return (((pHora*60)+pMinuto+difMinutos) % 60)
+  end
+
+  encoder.ptr.toStr = function ()
+    return (encoder.ptr.getHora() or '-') .. ":" .. (encoder.ptr.getMinuto() or '-')
   end
  
   local function getHr() 
     return pHora
   end
   
-  local function setHr(newHora)
-    pHora = newHora
-  end
-  
   local function toStr() 
     return (pHora or '-') .. ":" .. pMinuto
   end
 
+  encoder.updConfig = function () 
+      -- lê a diferença em minutos do encoder com os ponteiros do relogio
+      cfg.get({'encoder','dif'}, function (config) 
+          if config ~= nil and 
+             config.encoder ~= nil and 
+             config.encoder.dif ~= nil then
+                difMinutos=config.encoder.dif
+                print(("encoder dif = %d \n"):format(difMinutos))
+          end
+      end)
+  end
+  
+  encoder.updConfig()
+  
   encoder.init = init
-  encoder.getMin = getMin
-  encoder.setMin = setMin
+  encoder.getMin = getMin  
   encoder.getHr = getHr
-  encoder.setHr = setHr
   encoder.GMIN = calcGMIN
   encoder.toStr = toStr
   encoder.code = HorMinCode

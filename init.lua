@@ -12,7 +12,7 @@ do
     end
   end
 
-  print("Se quiser cancelar a inicialização, digite rapidamente:")
+  print("Se quiser cancelar a inicializacao, digite rapidamente:")
   print("file.rename('ok.flag','not_ok.flag')")
   print("Waiting ...")
   

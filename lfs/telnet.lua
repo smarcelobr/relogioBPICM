@@ -8,7 +8,7 @@ Lua core.  These two pipes are referenced in the Lua registry.
 
 ]]
 --luacheck: no unused args
-
+print("loading telnet")
 local M = {}
 local modname = ...
 local function telnet_session(socket)
@@ -36,8 +36,8 @@ local function telnet_session(socket)
   socket:on("receive", function(_,rec) node.input(rec) end)
   socket:on("sent", onsent_CB)
   socket:on("disconnection", disconnect_CB)
-  print(("Welcome to NodeMCU world (%d mem free, %s)"):format(
-        node.heap(), wifi.sta.getip()))
+  print(("Welcome to NodeMCU world (%d mem free)"):format(
+        node.heap()))
 end
 
 function M.open(this, ssid, pwd, port)
@@ -47,19 +47,20 @@ function M.open(this, ssid, pwd, port)
     wifi.sta.config { ssid = ssid, pwd  = pwd, save = false }
   end
   local t = tmr.create()
-  t:alarm(500, tmr.ALARM_AUTO, function()
-    if (wifi.sta.status() == wifi.STA_GOTIP) then
+  t:alarm(1000, tmr.ALARM_AUTO, function()
+    if (wifi.getmode() == wifi.SOFTAP or 
+        wifi.sta.status() == wifi.STA_GOTIP) then
       t:unregister()
       t=nil
-      print(("Telnet server started (%d mem free, %s)"):format(
-             node.heap(), wifi.sta.getip()))
+      print(("Telnet server started (%d mem free)"):format(
+             node.heap()))
       M.svr = net.createServer(net.TCP, 600) 
        --[[ 600 ->10 minutos de inatividade 
              para desconectar automaticamente.
        --]]
       M.svr:listen(port or 23, telnet_session)
     else
-      uwrite(0,".")
+      --uwrite(0,".")
     end
   end)
 end
