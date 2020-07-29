@@ -40,4 +40,8 @@ Toda a vez que atualizar a imagem do LFS, deve executar o seguinte comando no no
 
 > node.flashreload("lfs.img")
 
+uma alternativa para executar o comando acima usando o nodemcu-tool:
+
+$ nodemcu-tool --port=/dev/ttyUSB0 run reload_lfs.lua
+
 O nodemcu vai resetar automaticamente.

@@ -186,6 +186,29 @@ do
   end
 
   encoder.ptr = {} -- funcoes para calcular a diferenca com ponteiros
+  --[[
+    encoder.ptr.set(hora, minuto) - funcao para informar as horas
+    no ponteiro do relogio. Com isso, o encoder saberá calcular a
+    diferença entre o horário do encoder e dos ponteiros do relógio.
+    Atenção: Não é para informar a hora local atual e sim as horas que
+    estão no ponteiro do relógio. A hora local, o sistema pega da internet.
+    
+    Quando chegar o próximo ciclo, automaticamente o relógio irá posicionar
+    os ponteiros na hora correta.
+    
+    Retorna false caso não consiga calcular a diferença ou true
+    caso consiga.
+    
+    Exemplo: 
+    
+    Digamos que nos ponteiros do relógio são 6:32. 
+    
+    >=encoder.ptr.set(6,32)
+    true 
+    
+    No próximo ciclo, o relógio se movimentará até atingir 
+    a hora correta.
+  --]]
   encoder.ptr.set = function (hora, minuto)
     if (pHora == nil) then
        print("Hora do encoder ainda é desconhecida.")
@@ -200,7 +223,8 @@ do
       difMinutos = difMinutosReverse
     end
     
-    -- TODO gravar no arquivo config.json para ficar permanentemente registrado
+    cfg.set({"encoder",'dif'},difMinutos)
+    return true
   end
  
   encoder.ptr.getHora = function ()

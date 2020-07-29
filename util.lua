@@ -3,7 +3,7 @@
 -- converte uma table em string
 function pairToStr(k, v)
   local str
-     str = (k or 'nil') .. ":"
+     str = (k or 'nil') .. "="
   if type(v)=="table" then
     str = str .. "{"
     local primeiro=true
@@ -17,7 +17,11 @@ function pairToStr(k, v)
 	end
 	str = str .. "}"
   else
-	str = str .. (v or 'nil')
+    local strFmt = '%s%s'
+    if type(v)=="string" then
+      strFmt = '%s"%s"'
+    end
+    str = strFmt:format(str, tostring(v))
   end
   return str
 end
