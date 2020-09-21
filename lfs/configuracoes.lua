@@ -59,6 +59,10 @@ do
        ...
      }
 
+     outro exemplo:
+     cfg.set({'wifi','sta','ssid'}, 'meussidwifi')
+     cfg.set({'wifi','sta','pwd'}, 'senhawifi')
+
     --]]
     
       -- le o json completo:

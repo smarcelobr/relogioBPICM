@@ -1,6 +1,12 @@
-do 
+do
+    -- desliga o motor do relogio caso esteja ligado...
+    gpio.mode(1,gpio.OUTPUT);
+    gpio.mode(2,gpio.OUTPUT);
+    gpio.write(1,gpio.HIGH);
+    gpio.write(2,gpio.HIGH)
 
   function startup()
+    tmrStartup = nil
     if file.open("ok.flag") == nil then
 	print("ok.flag foi apagado ou renomeado.")
     else

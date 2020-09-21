@@ -1,8 +1,8 @@
 {
   "wifi": {
     "sta": {
-      "ssid": "jardimdomeier",
-      "pwd": "sergioeluciene",
+      "ssid": "Relogio da Torre",
+      "pwd": "jose1903",
       "save": false
     },
     "ap": {
@@ -21,6 +21,6 @@
       ]
   },
   "encoder": {
-      "dif": 32
+      "dif": 0
   }
 }

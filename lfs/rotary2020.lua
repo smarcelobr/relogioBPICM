@@ -18,8 +18,6 @@ do
 
   led.piscar("loading")
 
-  -- conecta no WIFI para pegar a hora
-	
   local falhaMotor = false
   local pausado = false
   local minutoAlvo = nil

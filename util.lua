@@ -26,3 +26,17 @@ function pairToStr(k, v)
   return str
 end
  
+function listfs()
+    local l = file.list();
+    for k,v in pairs(l) do
+        print("name:"..k..", size:"..v)
+    end
+end
+
+-- mostra o conteudo de um arquivo no SPIFFS
+function cat(filename)
+    if file.open(filename) then
+        print(file.read())
+        file.close()
+    end
+end
