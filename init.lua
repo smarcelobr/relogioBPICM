@@ -8,12 +8,13 @@ do
   function startup()
     tmrStartup = nil
     if file.open("ok.flag") == nil then
-	print("ok.flag foi apagado ou renomeado.")
+	    print("ok.flag foi apagado ou renomeado.")
     else
-	print("Running")
-	file.close("ok.flag")
-	-- the actual application is stored in 'application.lua'
-	pcall(node.flashindex("_init"))
+	    print("Running")
+	    file.close("ok.flag")
+	    -- the actual application is stored in 'application.lua'
+	    pcall(node.LFS.get("_init"))
+--        LFS.HTTP_OTA('www.cachambi.com.br','/relogioBPICM/','LFS.img')
         LFS.rotary2020()
     end
   end

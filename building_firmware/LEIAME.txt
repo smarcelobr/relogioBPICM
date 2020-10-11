@@ -5,6 +5,8 @@ alterei para o projeto do  relógio estão na mesma página que esse
 LEIAME.txt.
 
 
+=========================================
+
 RASPBERRY PI (*nux)
 -------------------
 
@@ -51,7 +53,7 @@ $ nodemcu-tool --port=/dev/ttyUSB0 run reload_lfs.lua
 O nodemcu vai resetar automaticamente.
 
 
----------------------
+=========================================---------------------
 * WINDOWS 10 e Docker *
 
 Instruções no link: https://nodemcu.readthedocs.io/en/master/build/
@@ -73,11 +75,15 @@ ele for uma das pastas da lista de sharing das configurações do Docker Desktop
 
 * FLASHING FIRMWARE *
 
-Igual ao do Raspberry, usando o esptool.py
+Análogo ao do Raspberry, usando o esptool.py
+
+> esptool.py --port COM3 write_flash -fm dio 0x00000 D:\smarc\ESP8266\nodemcu-firmware\bin\0x00000.bin
+> esptool.py --port COM3 write_flash -fm dio 0x10000 D:\smarc\ESP8266\nodemcu-firmware\bin\0x10000.bin
 
 * NOVO LFS *
 
-docker run --rm -ti -v D:\\smarc\\ESP8266\\nodemcu-firmware:/opt/nodemcu-firmware -v D:\\smarc\\IdeaProjects\\relogioBPICM\\lfs:/opt/lua marcelstoer/nodemcu-build lfs-image
+> cd D:\smarc\IdeaProjects\relogioBPICM\lfs
+> docker run --rm -ti -v D:\\smarc\\ESP8266\\nodemcu-firmware:/opt/nodemcu-firmware -v D:\\smarc\\IdeaProjects\\relogioBPICM\\lfs:/opt/lua marcelstoer/nodemcu-build lfs-image
 
 * Uploading files to SPIFFS *
 
@@ -87,6 +93,7 @@ $ nodemcu-tool upload --port=COM3 LFS_integer_20200921-0058.img --remotename lfs
 $ nodemcu-tool -p COM3 run reload_lfs.lua
 
 
+=========================================
 ** Comandos uteis para usar no terminal com o ESP8266 **
 
 Para acionar o terminal:
@@ -121,3 +128,8 @@ cfg.set({'wifi','sta','ssid'}, 'jardimdomeier'); cfg.set({'wifi','sta','pwd'}, '
 modo do wifi:
 print(wifi.getmode());
 print(wifi.sta.getstatus());
+
+Resolver DNS:
+net.dns.resolve("www.cachambi.com.br", function(sk, ip)
+    if (ip == nil) then print("DNS fail!") else print(ip) end
+end)

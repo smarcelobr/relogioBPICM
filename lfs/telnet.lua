@@ -36,7 +36,7 @@ local function telnet_session(socket)
   socket:on("receive", function(_,rec) node.input(rec) end)
   socket:on("sent", onsent_CB)
   socket:on("disconnection", disconnect_CB)
-  print(("Welcome to NodeMCU world (%d mem free)"):format(
+  print(("Bem vindo ao Relogio da Basilica (%d mem free)"):format(
         node.heap()))
 end
 

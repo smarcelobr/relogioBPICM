@@ -12,7 +12,8 @@ local n, total, size = 0, 0
 
 doRequest = function(socket, hostIP) -- luacheck: no unused
   if hostIP then
-    local con = tls.createConnection(net.TCP,0)
+    print(hostIP)
+    local con = net.createConnection(net.TCP,0)
     -- Note that the current dev version can only accept uncompressed LFS images
     con:on("connection",function(sck)
       local request = table.concat( {
@@ -68,7 +69,7 @@ finalise = function(sck)
     wifi.setmode(wifi.NULLMODE, false)
     collectgarbage();collectgarbage()
       -- run as separate task to maximise RAM available
-    node.task.post(function() node.flashreload(image) end)
+    node.task.post(function() node.LFS.reload(image) end)
   else
     print"Invalid save of image file"
   end
