@@ -20,7 +20,7 @@ do
         --]]
         if (wifi.sta.status()  == wifi.STA_GOTIP) then
             -- ja pegou o IP, nao precisa mais de ser AP.
-            print("nao precisa ser AP, pois, tem wifi");
+            --print("nao precisa ser AP, pois, tem wifi");
             return
         end
         wifi.setmode(wifi.SOFTAP)
@@ -40,7 +40,7 @@ do
 
         wifi.ap.dhcp.start()
 
-        print("wifi em modo AP: ssid=" .. config.wifi.ap.ssid)
+        --print("wifi em modo AP: ssid=" .. config.wifi.ap.ssid)
     end
 
     local function createWifiConnTimeoutTmr(config)
@@ -51,8 +51,8 @@ do
     end
 
     local connectWiFi = function(config)
-        print("connectWiFi: BEGIN")
-        print(pairToStr("config", config))
+        --print("connectWiFi: BEGIN")
+        --print(pairToStr("config", config))
         local configDefault = {
             wifi = {
                 sta = nil,
@@ -67,22 +67,22 @@ do
         }
 
         if config == nil then
-            print("connectWiFi: use default")
+            --print("connectWiFi: use default")
             config = configDefault
         end
 
         setmetatable(config, {
             __index = function(table, key)
-                print("connectWiFi: get " .. key .. " default")
+                --print("connectWiFi: get " .. key .. " default")
                 return configDefault[key]
             end
         })
 
         if config.wifi.sta ~= nil then
-            print("modo station")
+            --print("modo station")
             wifi.setmode(wifi.STATION)
 
-            print("wifi connecting: ssid=" .. config.wifi.sta.ssid)
+            --print("wifi connecting: ssid=" .. config.wifi.sta.ssid)
             wifi.sta.config(config.wifi.sta)
 
             createWifiConnTimeoutTmr(config); -- se demorar muito, entra no modo AP
@@ -94,7 +94,7 @@ do
         else
             startAccessPoint(config);
         end
-        print("connectWiFi: END")
+        --print("connectWiFi: END")
     end
 
     wifi.sta.disconnect()
@@ -108,6 +108,6 @@ do
     country_info.policy = wifi.COUNTRY_AUTO;
     wifi.setcountry(country_info)
 
-    print("wifi.cfg:GET")
+    --print("wifi.cfg:GET")
     cfg.get({ "wifi" }, connectWiFi)
 end

@@ -14,6 +14,7 @@ do
 	local fOnChange = nil;
     local lastHrLevel = gpio.read(pinHora)
     local difMinutos = 0 -- diferença entre a hora do encoder e dos ponteiros (em minutos)
+    local savePendent = false
 
     local cwHTbl = { -- clockwise table
     h0246810 = 0,
@@ -77,12 +78,16 @@ do
     return pHora and (((pHora%12)*60) + pMinuto + difMinutos) % 720
   end
 
+    local function notifyChange()
+        if (fOnChange) then
+            fOnChange(calcGMIN(), pMinuto, pHora)
+        end
+    end
+
     local function OnHoraDetected(level)
-        print("H")
         if (level == gpio.LOW) then
             if (math.abs(HorMinCode.minCount) > 11) then 
-               print("Hora Inicio")
-               --[[ 
+               --[[
                indica o primeiro sinal de Hora depois de muito tempo.
                --]]
                
@@ -91,16 +96,14 @@ do
                HorMinCode.minCount = 0
                HorMinCode.minArray = {}
             else 
-               print("Hora: " .. math.abs( HorMinCode.minCount ))
+--               print("Hora: " .. math.abs( HorMinCode.minCount ))
             end
             table.insert(HorMinCode.minArray, math.abs( HorMinCode.minCount ))            
         end
     end
  
 	local function OnMinutoDetected(level, when, eventCount)
-		print("M")
 		if (level == gpio.LOW) then
-            print("Minuto.")
             -- clockwise or counterclockwise ?
             if (motor.isClockwise()) then                
                vMinInc = 1  -- cw
@@ -138,7 +141,7 @@ do
                 for k,v in pairs(HorMinCode.minArray) do
                     HorMinCode.currHour = HorMinCode.currHour .. v
                 end
-                print(HorMinCode.currHour)
+                --print(HorMinCode.currHour)
                 
                 local lHoraDetect
                 if vMinInc == 1 then 
@@ -149,7 +152,7 @@ do
                   lHoraDetect = ccwHTbl[HorMinCode.currHour]
                 end
                 
-                print('Hora detectada:' .. (lHoraDetect or "!"))
+                --print('Hora detectada:' .. (lHoraDetect or "!"))
                 HorMinCode.minArray = {}
                 HorMinCode.minCount = 100
                 if (lHoraDetect~=nil) then
@@ -167,10 +170,7 @@ do
                 end
             end
 
-            if (fOnChange) then
-                fOnChange(calcGMIN(), pMinuto, pHora)
-            end
-            
+            notifyChange();
 		end
 	end
  
@@ -211,7 +211,7 @@ do
   --]]
   encoder.ptr.set = function (hora, minuto)
     if (pHora == nil) then
-       print("Hora do encoder ainda é desconhecida.")
+       --print("Hora do encoder ainda é desconhecida.")
        return false
     end
     -- calcula apenas a diferenca entre o encoder os ponteiros
@@ -222,11 +222,25 @@ do
     else 
       difMinutos = difMinutosReverse
     end
-    
-    cfg.set({"encoder",'dif'},difMinutos)
+
+    savePendent = true;
+    notifyChange();
+
     return true
   end
- 
+
+  encoder.ptr.incrementDifMinutos = function(increment)
+      difMinutos = difMinutos + increment;
+      savePendent = true;
+      notifyChange();
+  end
+
+  encoder.ptr.saveDifMinutos = function()
+      cfg.set({"encoder",'dif'},difMinutos)
+      savePendent = false;
+      notifyChange();
+  end
+
   encoder.ptr.getHora = function ()
     if pHora == nil then
        return nil
@@ -260,9 +274,19 @@ do
              config.encoder ~= nil and 
              config.encoder.dif ~= nil then
                 difMinutos=config.encoder.dif
-                print(("encoder dif = %d \n"):format(difMinutos))
+                --print(("encoder dif = %d \n"):format(difMinutos))
+                savePendent = false;
+                notifyChange();
           end
       end)
+  end
+
+  encoder.status = function ()
+    return {
+        time = encoder.ptr.toStr(),
+        difMinutos = difMinutos,
+        savePendent = savePendent
+    }
   end
   
   encoder.updConfig()

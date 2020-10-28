@@ -1,5 +1,5 @@
 print("loading rotary2020")
-if (r and r.release)~=nil then 
+if (r and r.release)~=nil then
   r.release()
 end
 r = {}
@@ -22,7 +22,21 @@ do
   local pausado = false
   local minutoAlvo = nil
   local isBuscaHora = false
-	
+
+  local function status()
+    return {
+      ptr=encoder.status(),
+      rtc=rtc.status(),
+      falhaMotor=falhaMotor,
+      led=led.status(),
+    }
+  end
+
+  local function printStatusJson()
+    local ok, json = pcall(sjson.encode, status())
+    print(json)
+  end
+
   local function falhouMotor()
 	-- entra em modo de falha.
 	print("Falha motor/encoder nao responde.")
@@ -49,13 +63,11 @@ do
   end
 
   local function acionaPonteiro(ptrTimer)
-    print('ptrTimer')
 
     local rtcGMIN, newSec = rtc.GMIN()
 
     if (newSec ~= nil) then
       local newInterval = math.max( (60-newSec) , 5)*1000
-      print("newInterval=" .. newInterval)
       ptrTimer:interval(newInterval)
     end
        
@@ -64,7 +76,6 @@ do
     if (encoder.GMIN()~=nil and rtcGMIN~=nil) then 
        -- calcula atraso ou adianto
        difGMIN = calcDif(encoder.GMIN(), rtcGMIN)
-       print("L-dif GMIN:" .. difGMIN)       
     end
     
 	-- testa se ha uma falha mecanica 
@@ -72,12 +83,10 @@ do
 	if not falhaMotor then
       if (not pausado) then 
         if (difGMIN < 0) then -- esta atrasado ou certo?
-          print('cw')
           motor.ligarClockwise()
           
         else
           if (difGMIN > 0) then
-            print('ccw')
             motor.ligarCounterClockwise()
           end
         end
@@ -98,12 +107,10 @@ do
     if (GMIN~=nil and rtc.GMIN()~=nil) then 
        -- calcula atraso ou adianto
        difGMIN = calcDif(GMIN, rtc.GMIN())
-       print("D-dif GMIN:" .. difGMIN)       
     end
 
     if isBuscaHora then
       if ptrHora ~= nil then
-         print("Hr def.")
          motor.desligar()
          isBuscaHora = false
          ponteiroTimer:start()
@@ -123,11 +130,12 @@ do
     		end
     	end
     end
-	  print(encoder.ptr.toStr())
+	  --print(encoder.ptr.toStr())
+    printStatusJson();
   end
 
   encoder.init( encoderOnChange )
-
+  rtc.init( printStatusJson )
 
   -- move o ponteiro ate chegar ao minuto zero
   local function zeromin() 
@@ -165,7 +173,6 @@ do
   local function release()
     ponteiroTimer:stop()
     ponteiroTimer:unregister()
-    print("r.release()")
   end
 
   r.zeromin = zeromin
@@ -177,8 +184,8 @@ do
   r.release = release
   r.buscarHoraCW = buscarHoraCW
   r.buscarHoraCCW = buscarHoraCCW
+  r.status = printStatusJson
 
   buscarHoraCW()
-
 
 end

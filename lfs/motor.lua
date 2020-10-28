@@ -68,7 +68,7 @@ do
   motor.release = function ()
     motorTmr:stop()
     motorTmr:unregister()
-    print("motor.release()")
+    --print("motor.release()")
   end
   
 end

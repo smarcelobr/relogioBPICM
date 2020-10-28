@@ -82,15 +82,18 @@ Análogo ao do Raspberry, usando o esptool.py
 
 * NOVO LFS *
 
-> cd D:\smarc\IdeaProjects\relogioBPICM\lfs
+
 > docker run --rm -ti -v D:\\smarc\\ESP8266\\nodemcu-firmware:/opt/nodemcu-firmware -v D:\\smarc\\IdeaProjects\\relogioBPICM\\lfs:/opt/lua marcelstoer/nodemcu-build lfs-image
 
 * Uploading files to SPIFFS *
 
 Igual ao do raspberry, usando o nodemcu-tool.
 
-$ nodemcu-tool upload --port=COM3 LFS_integer_20200921-0058.img --remotename lfs.img
-$ nodemcu-tool -p COM3 run reload_lfs.lua
+> cd D:\smarc\IdeaProjects\relogioBPICM\lfs
+> nodemcu-tool upload --port=COM3 LFS_integer_20200921-0058.img --remotename lfs.img
+> nodemcu-tool -p COM3 run reload_lfs.lua
+   ou, no terminal:
+> node.flashreload("lfs.img")
 
 
 =========================================

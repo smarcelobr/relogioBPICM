@@ -16,6 +16,13 @@ do
   local SntpSyncTentativas = 0
   local sucesso = false
   local difTimezone = -180
+  local fOnChange = nil
+
+  local function notifyChange()
+      if (fOnChange) then
+          fOnChange()
+      end
+  end
   
    --[[
     atualizaDifTimezone - Esta função pega a diferença dependendo do valor do epoch timestamp
@@ -60,12 +67,12 @@ do
       rtcConfig.rtc.dif ~= nil then
        local now = rtctime.get()
        for i,timezone in ipairs(rtcConfig.rtc.dif) do
-	  if timezone.epoch <= now then
-	     difTimezone = timezone.dif
-	     print(("epoch = %d => dif RTC = %d"):format(
-	           timezone.epoch, timezone.dif))
-	     break
-	  end      
+          if timezone.epoch <= now then
+             difTimezone = timezone.dif
+             --print(("{\"epoch\"=\"%d\",\"difRTC\"=\"%d\"}"):format(timezone.epoch, timezone.dif))
+             notifyChange()
+             break
+          end
        end   
    end
    
@@ -73,7 +80,7 @@ do
   
   -- funcao quando o sntp sincroniza a hora
   local function sntpSyncSuccess(sec, usec, server, info) 	
-    print('sync', sec, usec, server)
+    --print('sync', sec, usec, server)
     sucesso = true
     
     -- atualiza os minutos de diferença por causa do 
@@ -82,9 +89,9 @@ do
   end
 
   local function sntpSyncError(codError, complemento) 	
-	print('sntp error sync. cod:', codError)
+	--print('sntp error sync. cod:', codError)
 	if (complemento ~= nil) then
-		print('sntp error compl:', complemento)
+		--print('sntp error compl:', complemento)
 	end
 	
 	if (codError == 4) then 
@@ -97,11 +104,11 @@ do
   
   -- funcao quando o wifi for conectado
   local function wifiOnConnect()
-	print("wifi conectado")
+	--print("wifi conectado")
 	
 	-- inicia o sync com SNTP caso já não tenha iniciado
 	if SntpSyncTentativas == 0 then
-		print ("sincronizando com o NTP server")
+		--print ("sincronizando com o NTP server")
 		sntp.sync(NTPlist, sntpSyncSuccess, sntpSyncError, 1) -- com autorepeat
 		SntpSyncTentativas = SntpSyncTentativas + 1
 	end
@@ -120,16 +127,26 @@ do
 
   rtc.toStr = function ()
     if (not sucesso) then
-      print('n/a')
+      return 'n/a'
     end 
 
     local local_now = rtctime.get() + (difTimezone*60) -- converte a diferença de minutos para segundos.
     tm = rtctime.epoch2cal(local_now)
 
-    return string.format("%04d/%02d/%02d %02d:%02d:%02d",
+    return string.format("%04d-%02d-%02dT%02d:%02d:%02d",
       tm["year"], tm["mon"], tm["day"],
       tm["hour"], tm["min"], tm["sec"])
   end
 
+    rtc.status = function()
+        return {
+          time=rtc.toStr(),
+          difTimezone=difTimezone
+       }
+    end
+
+    rtc.init = function(pOnChange)
+        fOnChange=pOnChange
+    end
 
 end
