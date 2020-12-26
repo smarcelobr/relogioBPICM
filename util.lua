@@ -35,8 +35,16 @@ end
 
 -- mostra o conteudo de um arquivo no SPIFFS
 function cat(filename)
-    if file.open(filename) then
-        print(file.read())
+    local fh = file.open(filename)
+    if fh then
+        local acabou = false
+        while (not acabou) do
+            local linha = fh:readline()
+            acabou = (linha==nil)
+            if (not acabou) then
+              print(linha)
+            end
+        end
         file.close()
     end
 end
@@ -58,4 +66,29 @@ function listAPs()
     end
 
     wifi.sta.getap(callbackGetAp)
+end
+
+-- funcoes para transferir arquivos
+-- inicia uma area temporaria para transferencia
+function fto()
+  ft = file.open("tranfer.tmp", "w+")
+end
+-- transfere um texto
+function ftt(dado)
+  if (ft) then
+    ft:write(dado)
+  end
+end
+-- transfere um binario (base64)
+function ftb(dadoBase64)
+  if (ft) then
+    ft:write(dado)
+  end
+end
+-- finaliza dando o nome finaliza
+function ftc(nome)
+  if (ft) then
+    ft:close()
+    file.rename("transfer.tmp", nome)
+  end
 end

@@ -66,6 +66,7 @@ e https://hub.docker.com/r/marcelstoer/nodemcu-build/
 > cd \smarc\ESP8266\nodemcu-firmware
 2) executar o comando:
 $ docker run --rm -ti -v D:\\smarc\\ESP8266\\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
+docker run --rm -ti -v c:\\Users\\Public\\trabalho\\projetos\\github\\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
 ( No windows, o Docker só irá conseguir fazer o mount de "D:\\smarc\\ESP8266\\nodemcu-firmware" se
 ele for uma das pastas da lista de sharing das configurações do Docker Desktop.)
 
