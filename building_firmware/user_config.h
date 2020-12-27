@@ -165,7 +165,9 @@
 // alphanumeric characters. If you are imaging multiple modules with this
 // firmware then you must also define WIFI_STA_HOSTNAME_APPEND_MAC to
 // append the last 3 octets of the MAC address.  Note that the total
-// Hostname MUST be 32 chars or less.
+// Hostname MUST be 32 chars or less. If the resulting hostname is
+// invalid, then it will not be used, and a message will be printed
+// during boot.
 
 //#define WIFI_STA_HOSTNAME "NodeMCU"
 //#define WIFI_STA_HOSTNAME_APPEND_MAC
@@ -239,19 +241,29 @@
 #  define LUA_FLASH_STORE                 0x0
 #endif
 
-#define SPIFFS_FIXED_LOCATION             0x0
+#ifndef SPIFFS_FIXED_LOCATION
+  #define SPIFFS_FIXED_LOCATION           0x0
+  // You'll rarely need to customize this, because nowadays
+  // it's usually overruled by the partition table anyway.
+#endif
 #ifndef SPIFFS_MAX_FILESYSTEM_SIZE
 #  define SPIFFS_MAX_FILESYSTEM_SIZE      0xFFFFFFFF
 #endif
 //#define SPIFFS_SIZE_1M_BOUNDARY
 
+// The following define enables recording of the number of CPU cycles at certain
+// points in the startup process. It can be used to see where the time is being
+// consumed. It enables a nice node.startupcounts() function to get the results.
+//#define PLATFORM_STARTUP_COUNT
+
 #define LUA_TASK_PRIO             USER_TASK_PRIO_0
 #define LUA_PROCESS_LINE_SIG      2
-#define LUA_OPTIMIZE_DEBUG        2
+// LUAI_OPTIMIZE_DEBUG 0 = Keep all debug; 1 = keep line number info; 2 = remove all debug
+#define LUAI_OPTIMIZE_DEBUG       1
 #define READLINE_INTERVAL        80
 #define STRBUF_DEFAULT_INCREMENT  3
 #define LUA_USE_BUILTIN_DEBUG_MINIMAL // for debug.getregistry() and debug.traceback()
- 
+
 #if defined(DEVELOPMENT_TOOLS) && defined(DEVELOPMENT_USE_GDB)
 extern void LUA_DEBUG_HOOK (void);
 #define lua_assert(x)    ((x) ? (void) 0 : LUA_DEBUG_HOOK ())
