@@ -82,7 +82,7 @@ end
 -- transfere um binario (base64)
 function ftb(dadoBase64)
   if (ft) then
-    ft:write(dado)
+    ft:write(encoder.fromBase64(dadoBase64))
   end
 end
 -- finaliza dando o nome finaliza

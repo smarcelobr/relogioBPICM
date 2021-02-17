@@ -32,7 +32,7 @@ local function telnet_session(socket)
     socket, stdout = nil, nil -- set upvals to nl to allow GC
   end
 
-  node.output(output_CB, 0)
+  node.output(output_CB, 1) -- 2o.parâmetro: 0-no serial output / 1- serial output tb
   socket:on("receive", function(_,rec) node.input(rec) end)
   socket:on("sent", onsent_CB)
   socket:on("disconnection", disconnect_CB)
