@@ -1,8 +1,8 @@
-print("loading encoder")
+print("loading rencoder")
 require("motor")
 require("configuracoes")
 
-encoder = {}
+rencoder = {}
 do
 	local pinMinuto, pinHora = 5, 6
 
@@ -185,7 +185,7 @@ do
     return pMinuto
   end
 
-  encoder.ptr = {} -- funcoes para calcular a diferenca com ponteiros
+  rencoder.ptr = {} -- funcoes para calcular a diferenca com ponteiros
   --[[
     encoder.ptr.set(hora, minuto) - funcao para informar as horas
     no ponteiro do relogio. Com isso, o encoder saberá calcular a
@@ -209,7 +209,7 @@ do
     No próximo ciclo, o relógio se movimentará até atingir 
     a hora correta.
   --]]
-  encoder.ptr.set = function (hora, minuto)
+  rencoder.ptr.set = function (hora, minuto)
     if (pHora == nil) then
        --print("Hora do encoder ainda é desconhecida.")
        return false
@@ -229,34 +229,34 @@ do
     return true
   end
 
-  encoder.ptr.incrementDifMinutos = function(increment)
+  rencoder.ptr.incrementDifMinutos = function(increment)
       difMinutos = difMinutos + increment;
       savePendent = true;
       notifyChange();
   end
 
-  encoder.ptr.saveDifMinutos = function()
+  rencoder.ptr.saveDifMinutos = function()
       cfg.set({"encoder",'dif'},difMinutos)
       savePendent = false;
       notifyChange();
   end
 
-  encoder.ptr.getHora = function ()
+  rencoder.ptr.getHora = function ()
     if pHora == nil then
        return nil
     end
     return (math.floor(((pHora*60)+pMinuto+difMinutos)/60) % 12)
   end
 
-  encoder.ptr.getMinuto = function ()
+  rencoder.ptr.getMinuto = function ()
     if pHora == nil then
        return nil
     end
     return (((pHora*60)+pMinuto+difMinutos) % 60)
   end
 
-  encoder.ptr.toStr = function ()
-    return (encoder.ptr.getHora() or '-') .. ":" .. (encoder.ptr.getMinuto() or '-')
+  rencoder.ptr.toStr = function ()
+    return (rencoder.ptr.getHora() or '-') .. ":" .. (rencoder.ptr.getMinuto() or '-')
   end
  
   local function getHr() 
@@ -267,7 +267,7 @@ do
     return (pHora or '-') .. ":" .. pMinuto
   end
 
-  encoder.updConfig = function () 
+  rencoder.updConfig = function ()
       -- lê a diferença em minutos do encoder com os ponteiros do relogio
       cfg.get({'encoder','dif'}, function (config) 
           if config ~= nil and 
@@ -281,21 +281,21 @@ do
       end)
   end
 
-  encoder.status = function ()
+  rencoder.status = function ()
     return {
-        time = encoder.ptr.toStr(),
+        time = rencoder.ptr.toStr(),
         difMinutos = difMinutos,
         savePendent = savePendent
     }
   end
   
-  encoder.updConfig()
+  rencoder.updConfig()
   
-  encoder.init = init
-  encoder.getMin = getMin  
-  encoder.getHr = getHr
-  encoder.GMIN = calcGMIN
-  encoder.toStr = toStr
-  encoder.code = HorMinCode
+  rencoder.init = init
+  rencoder.getMin = getMin
+  rencoder.getHr = getHr
+  rencoder.GMIN = calcGMIN
+  rencoder.toStr = toStr
+  rencoder.code = HorMinCode
   
 end

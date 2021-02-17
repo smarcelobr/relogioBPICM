@@ -12,7 +12,7 @@ do
   require("app_wifi")
   require("gdate")
   require("relogioInternet")
-  require("encoder")
+  require("rencoder")
   require("telnet"):open()
 --  require("rotarysvc").init()
 
@@ -25,7 +25,7 @@ do
 
   local function status()
     return {
-      ptr=encoder.status(),
+      ptr= rencoder.status(),
       rtc=rtc.status(),
       falhaMotor=falhaMotor,
       led=led.status(),
@@ -73,9 +73,9 @@ do
        
     
     local difGMIN = -1
-    if (encoder.GMIN()~=nil and rtcGMIN~=nil) then 
+    if (rencoder.GMIN()~=nil and rtcGMIN~=nil) then
        -- calcula atraso ou adianto
-       difGMIN = calcDif(encoder.GMIN(), rtcGMIN)
+       difGMIN = calcDif(rencoder.GMIN(), rtcGMIN)
     end
     
 	-- testa se ha uma falha mecanica 
@@ -134,7 +134,7 @@ do
     printStatusJson();
   end
 
-  encoder.init( encoderOnChange )
+  rencoder.init( encoderOnChange )
   rtc.init( printStatusJson )
 
   -- move o ponteiro ate chegar ao minuto zero
