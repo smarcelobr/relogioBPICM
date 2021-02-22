@@ -14,7 +14,7 @@ do
   require("relogioInternet")
   require("rencoder")
   require("telnet"):open()
---  require("rotarysvc").init()
+  require("webservices")
 
   led.piscar("loading")
 
@@ -119,7 +119,14 @@ do
     else
         if (ptrMin == (minutoAlvo or ptrMin)) then
             if (difGMIN == 0) then
-      		  motor.desligar()
+              if not tmr.create():alarm(200, tmr.ALARM_SINGLE, function()
+                -- desliga o motor apos 200ms para distanciar um pouco do edge.
+                motor.desligar()
+              end)
+              then
+                -- timer não funcionou... desliga agora.
+                motor.desligar()
+              end
             end
     		if (minutoAlvo) then
     		  -- atingiu o objetivo, limpa o alvo para voltar ao normal
@@ -184,7 +191,8 @@ do
   r.release = release
   r.buscarHoraCW = buscarHoraCW
   r.buscarHoraCCW = buscarHoraCCW
-  r.status = printStatusJson
+  r.printStatusJson = printStatusJson
+  r.status = status
 
   buscarHoraCW()
 

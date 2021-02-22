@@ -106,7 +106,7 @@ Igual ao do raspberry, usando o nodemcu-tool.
 > nodemcu-tool upload --port=COM3 LFS_integer_20200921-0058.img --remotename lfs.img
 > nodemcu-tool -p COM3 run reload_lfs.lua
    ou, no terminal:
-> node.LFS.reload("lfs.img")
+> print(node.LFS.reload("lfs.img"))
 > old: node.flashreload("lfs.img")
 >
 
