@@ -193,6 +193,10 @@ do
   r.buscarHoraCCW = buscarHoraCCW
   r.printStatusJson = printStatusJson
   r.status = status
+  r.lfm = function ()
+      -- limpa o flag de erro do motor permitindo a retomada do funcionamento.
+      falhaMotor = false
+  end
 
   buscarHoraCW()
 

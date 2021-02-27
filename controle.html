@@ -8,63 +8,34 @@
         .status { }
         .toolbar {float: right;}
     </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <h1>Relógio Santa Fé</h1>
   <button id="atualizaBtn" class="controle" type="button" onclick="consultaStatus()">Atualiza Status</button>
   <div id="status">
-      <p>Horário nos ponteiros: <span id="ptr_time">&nbsp;</span> </p>
-      <div class="toolbar">
-          <button id="incrementaBtn" class="controle" type="button" onclick="incrementa(1)">+</button>
-          <button id="decrementaBtn" class="controle" type="button" onclick="incrementa(-1)">-</button>
+      <div id="status_rtc">
+      <p>Horário da Internet: <span id="rtc_time">&nbsp;</span></p>
+      <p>Diferença em minutos: <span id="rtc_difTimezone">&nbsp;</span></p>
+      </div>
+
+      <div id="status_ptr">
+      <p>Horário nos ponteiros: <span id="ptr_time">&nbsp;</span></p>
+      <p>Diferença Encoder: <span id="ptr_difMinutos">&nbsp;</span></p>
+          <div class="toolbar">
+              <button id="incrementaBtn" class="controle" type="button" onclick="incrementa(1)">+</button>
+              <button id="decrementaBtn" class="controle" type="button" onclick="incrementa(-1)">-</button>
+              <button id="gravarDifMinutosBtn" class="controle" type="button" onclick="gravarDifMinutos()">-</button>
+          </div>
+      </div>
+      <div id="status_falhaMotor" style="display:none">
+          <p>Mecanismo apresentou falhas e os motores foram desligados por segurança.</p>
+          <button id="retomarMotorBtn" class="controle" type="button" onclick="limparFlagMotor()">Retomar</button>
       </div>
   </div>
 
-  <script type="text/javascript">
-      let successCallback = function (httpRequest) {
-          let status = JSON.parse(httpRequest.responseText);
-          document.getElementById("ptr_time").innerText = status.ptr.time;
-      };
+  <script src="util.js"></script>
+  <script src="controle.js"></script>
 
-      function consultaStatus() {
-          ajax("GET", "status", null, successCallback);
-      }
-
-      function incrementa(minutos) {
-          ajax("POST", "inc", {min: minutos}, successCallback, null, null);
-      }
-
-      function ajax(method, url, bodyData, successCallback, errorCallback, completeCallback) {
-          let controles = Array.from(document.getElementsByClassName("controle"));
-          controles.forEach((c)=>c.disabled = true); // desabilita todos os controles durante a chamada
-          var xhttp = new XMLHttpRequest();
-          xhttp.onreadystatechange = function() {
-              if (this.readyState === XMLHttpRequest.DONE) {
-                  if (this.status === 200) {
-                      if (successCallback) {
-                          successCallback(this);
-                      }
-                  } else {
-                      if (errorCallback) {
-                          errorCallback(this);
-                      }
-                  }
-                  if (completeCallback) {
-                      completeCallback(this);
-                  }
-                  controles.forEach((c)=>c.disabled = false); // reabilita os controles quando finaliza
-              }
-          };
-          xhttp.open(method, url, true);
-          if (bodyData) {
-              xhttp.setRequestHeader("Content-type", "application/json");
-              xhttp.send(JSON.stringify(bodyData));
-          } else {
-              xhttp.send();
-          }
-      }
-
-      consultaStatus();
-  </script>
 </body>
 </html>

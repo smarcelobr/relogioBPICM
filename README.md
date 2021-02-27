@@ -8,4 +8,11 @@ Para contribuir:
 
     git clone https://github.com/smarcelobr/relogioBPICM.git
     
- 
+
+Putty comandos: 
+
+    cfg.get({"wifi","sss"},
+       function(v)
+         print(pairToStr("resultado",v))
+       end
+    )

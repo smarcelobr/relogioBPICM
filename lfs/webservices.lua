@@ -10,13 +10,14 @@ do
         txt = 'text/plain',
         html = 'text/html',
         js = 'text/javascript',
-        css = 'text/css'
+        css = 'text/css',
+        json = 'application/json'
     }
 
     local function sendJson(res, httpStatus, json)
         res:send(nil, httpStatus)
         res:send_header("Connection", "close")
-        res:send_header("Content-Type", "application/json")
+        res:send_header("Content-Type", mimeTypeTbl.json)
         if (json) then
             res:send(json)
         end
@@ -46,32 +47,14 @@ do
         sendJson(handlerData.res, 404, '{"msg":"não achei"}')
     end
 
-    local function incOnExecute(handlerData, bodyObj)
-        if (bodyObj and bodyObj.min) then
-            rencoder.ptr.incrementDifMinutos(bodyObj.min)
-            statusOnExecute(handlerData)
-        else
-            badRequestOnExecute(handlerData.res, {json='{"msg":"\'min\' não definido"}'});
-        end
-    end
-
-    local srvTbl = {
-        inc = { method = 'POST', onExecute = incOnExecute },
-        status = { method = 'GET', onExecute = statusOnExecute }
-    }
-
-    local function sendFileOnExecute(handlerData)
+    local function sendFileOnExecute(handlerData, bodyObj)
         local fileName = handlerData.req.url:sub(2)
-        local pontoPos = fileName:find('.')
-        local extensao = 'txt'; -- padrão
-        if pontoPos then
-            extensao = fileName:sub(pontoPos + 1);
-        end
+        local posIni, posFim, extensao = fileName:find('%.(%a+)$')
         local fh = file.open(fileName)
         if fh then
             handlerData.res:send(nil, 200)
             handlerData.res:send_header("Connection", "close")
-            handlerData.res:send_header("Content-Type", mimeTypeTbl[extensao])
+            handlerData.res:send_header("Content-Type", mimeTypeTbl[extensao or 'txt'])
             local acabou = false
             while (not acabou) do
                 local linha = fh:readline()
@@ -86,11 +69,69 @@ do
         else
             handlerData.res:send(nil, 500)
             handlerData.res:send_header("Connection", "close")
-            handlerData.res:send_header("Content-Type", 'text/plain')
+            handlerData.res:send_header("Content-Type", mimeTypeTbl.txt)
             handlerData.res.finish("Falhou ao ler arquivo.") -- falhou ao abrir controle.html
         end
 
     end
+
+    local function incOnExecute(handlerData, bodyObj)
+        if (bodyObj and bodyObj.min) then
+            rencoder.ptr.incrementDifMinutos(bodyObj.min)
+            statusOnExecute(handlerData)
+        else
+            badRequestOnExecute(handlerData.res, {json='{"msg":"\'min\' não definido"}'})
+        end
+    end
+
+    local function gdmOnExecute(handlerData, bodyObj)
+        -- grava a diferenca em minutos entre o rencoder e os ponteiros no config.json
+        rencoder.ptr.saveDifMinutos()
+        statusOnExecute(handlerData)
+    end
+
+    local function lfmOnExecute(handlerData, bodyObj)
+        r.lfm(); -- limpa o flag de erro no motor permitindo a retomada do funcionamento.
+        statusOnExecute(handlerData)
+    end
+
+    local function setWifiOnExecute(handlerData, bodyObj)
+        if (bodyObj and bodyObj.ssid and bodyObj.pwd) then
+            cfg.set({'wifi','sta','ssid'}, bodyObj.ssid)
+            cfg.set({'wifi','sta','pwd'}, bodyObj.pwd)
+            statusOnExecute(handlerData)
+        else
+            badRequestOnExecute(handlerData.res, {json='{"msg":"\'ssid\' ou \'pwd\' não definido"}'})
+        end
+    end
+
+    local function setNomeOnExecute(handlerData, bodyObj)
+        if (bodyObj and bodyObj.nome) then
+            cfg.set({'nome'}, bodyObj.nome)
+            statusOnExecute(handlerData)
+        else
+            badRequestOnExecute(handlerData.res, {json='{"msg":"\'nome\' não definido"}'})
+        end
+    end
+
+    local function getNomeOnExecute(handlerData, bodyObj)
+        cfg.get({"nome"},
+                function(v)
+                    sendJson(handlerData.res, 200, '{"nome":"'.. v.nome ..'"')
+                end
+        )
+    end
+
+    local srvTbl = {
+        GET_status = { onExecute = statusOnExecute },
+        POST_nome = { onExecute = setNomeOnExecute },
+        GET_nome = { onExecute = getNomeOnExecute },
+        POST_inc = { onExecute = incOnExecute },
+        POST_gdm = { onExecute = gdmOnExecute },
+        POST_lfm = { onExecute = lfmOnExecute },
+        POST_setwifi = { onExecute = setWifiOnExecute },
+        GET_File = { onExecute = sendFileOnExecute }
+    }
 
     httpserver.createServer(80, function(req, res)
         print('http:{"t"="+R","m"="' .. req.method .. '","u"="' .. req.url .. '","h"="' .. node.heap() .. '"}')
@@ -130,23 +171,18 @@ do
         end
 
         local nome = req.url:sub(2)
-        local expectedMethod = "GET"
+        local serviceIdent = req.method .. '_' .. nome
         if (file.exists(nome)) then
-            handlerData.onExecute = sendFileOnExecute
+            serviceIdent = req.method .. '_File' -- GET_File
+        end
+        if (srvTbl[serviceIdent]) then
+            -- se o serviço estiver implementado:
+            handlerData.onExecute = srvTbl[serviceIdent].onExecute
         else
-            if (srvTbl[nome]) then
-                -- testa se é serviço
-                handlerData.onExecute = srvTbl[nome].onExecute
-                expectedMethod = srvTbl[nome].method
-            else
-                handlerData.onExecute = notFoundOnExecute
-            end
+            handlerData.onExecute = notFoundOnExecute
         end
 
-        if not req.method == expectedMethod then
-            -- metodo HTTP invalido?
-            handlerData.onExecute = methodNotAllowedOnExecute
-        end
+        handlerData.onExecute = methodNotAllowedOnExecute
 
     end)
 end
