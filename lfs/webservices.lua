@@ -153,6 +153,9 @@ do
     }
 
     httpserver.createServer(80, function(req, res)
+        if req==nil or res==nil then
+            return
+        end
         print('http:{"t"="+R","m"="' .. req.method .. '","u"="' .. req.url .. '","h"="' .. node.heap() .. '"}')
         local handlerData = {
             req = req, res = res,

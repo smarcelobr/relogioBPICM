@@ -30,7 +30,7 @@ local function wrap(sock)
 
     if type(s) == "function" then
       if sslan ~= 0 then
-        sock:send(ssla)
+        pcall(sock.send,sock,ssla)
         ssla, sslan = nil, 0; gc()
         return s, false -- stay as is and wait for :on("sent")
       end
@@ -43,10 +43,12 @@ local function wrap(sock)
       if islast then
         -- this is shipping; if there's room, steal the small fifo, too
         if sslan < COALIMIT then
-          sock:send(ssla .. concat(fsmall))
+          --sock:send(ssla .. concat(fsmall))
+          pcall(sock.send,sock,ssla .. concat(fsmall))
           fsmall, lsmall = {}, 0
         else
-          sock:send(ssla)
+          --sock:send(ssla)
+          pcall(sock.send,sock,ssla)
         end
         ssla, sslan = "", 0; gc()
         return nil, false
@@ -58,12 +60,12 @@ local function wrap(sock)
     -- Either that was a function or we've hit our coalescing limit or
     -- we didn't ship above.  Ship now, if there's something to ship.
     if s ~= nil then
-      if sslan == 0 then sock:send(s) else sock:send(ssla .. s) end
+      if sslan == 0 then pcall(sock.send,sock,s) else pcall(sock.send,sock,ssla .. s) end
       ssla, sslan = nil, 0; gc()
       return ns or nil, false
     elseif sslan ~= 0 then
       assert (ns == nil)
-      sock:send(ssla)
+      pcall(sock.send,sock,ssla)
       ssla, sslan = nil, 0; gc()
       return nil, false
     else

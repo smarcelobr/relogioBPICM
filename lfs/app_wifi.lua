@@ -23,7 +23,7 @@ do
             --print("nao precisa ser AP, pois, tem wifi");
             return
         end
-        wifi.setmode(wifi.SOFTAP)
+        wifi.setmode(wifi.STATIONAP)
         wifi.ap.config(config.wifi.ap)
 
         local cfgIP =
