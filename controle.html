@@ -4,38 +4,35 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Relógio</title>
-    <style>
-        .status { }
-        .toolbar {float: right;}
-    </style>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <h1>Relógio Santa Fé</h1>
-  <button id="atualizaBtn" class="controle" type="button" onclick="consultaStatus()">Atualiza Status</button>
-  <div id="status">
-      <div id="status_rtc">
-      <p>Horário da Internet: <span id="rtc_time">&nbsp;</span></p>
-      <p>Diferença em minutos: <span id="rtc_difTimezone">&nbsp;</span></p>
-      </div>
+<h1 id="cfg_nome">Relógio</h1>
+<button id="atualizaBtn" class="controle" type="button" onclick="consultaStatus()">Atualiza Status</button>
+<div id="status">
+    <div id="status_rtc">
+        <p>Horário da internet: <span id="rtc_time">&nbsp;</span></p>
+        <p>Diferença internet e local: <span id="rtc_difTimezone">&nbsp;</span> minutos</p>
+    </div>
 
-      <div id="status_ptr">
-      <p>Horário nos ponteiros: <span id="ptr_time">&nbsp;</span></p>
-      <p>Diferença Encoder: <span id="ptr_difMinutos">&nbsp;</span></p>
-          <div class="toolbar">
-              <button id="incrementaBtn" class="controle" type="button" onclick="incrementa(1)">+</button>
-              <button id="decrementaBtn" class="controle" type="button" onclick="incrementa(-1)">-</button>
-              <button id="gravarDifMinutosBtn" class="controle" type="button" onclick="gravarDifMinutos()">-</button>
-          </div>
-      </div>
-      <div id="status_falhaMotor" style="display:none">
-          <p>Mecanismo apresentou falhas e os motores foram desligados por segurança.</p>
-          <button id="retomarMotorBtn" class="controle" type="button" onclick="limparFlagMotor()">Retomar</button>
-      </div>
-  </div>
+    <div id="status_ptr">
+        <p>Horário nos Ponteiros: <span id="ptr_time">&nbsp;</span></p>
+        <p>Diferença hora do encoder e hora Ponteiros: <span id="ptr_difMinutos">&nbsp;</span> minutos</p>
+        <div class="toolbar">
+            <button id="incrementaBtn" class="controle" type="button" onclick="incrementa(1)">+</button>
+            <button id="decrementaBtn" class="controle" type="button" onclick="incrementa(-1)">-</button>
+            <button id="gravarDifMinutosBtn" class="controle" type="button" onclick="gravarDifMinutos()">Gravar</button>
+        </div>
+    </div>
+    <div id="status_falhaMotor" style="display:none">
+        <p>Mecanismo apresentou falhas e os motores foram desligados por segurança.</p>
+        <button id="retomarMotorBtn" class="controle" type="button" onclick="limparFlagMotor()">Retomar</button>
+    </div>
+</div>
+<a href="configuracao.html">[ Configurações ]</a>
 
-  <script src="util.js"></script>
-  <script src="controle.js"></script>
+<script src="util.js"></script>
+<script src="controle.js"></script>
 
 </body>
 </html>

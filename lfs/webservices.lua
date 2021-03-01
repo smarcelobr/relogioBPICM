@@ -18,10 +18,7 @@ do
         res:send(nil, httpStatus)
         res:send_header("Connection", "close")
         res:send_header("Content-Type", mimeTypeTbl.json)
-        if (json) then
-            res:send(json)
-        end
-        res:finish()
+        res:finish(json)
     end
 
     local function statusOnExecute(handlerData)
@@ -39,10 +36,10 @@ do
         sendJson(handlerData.res, 400, bodyObj.json or '{"msg":"json invalido no body"}')
     end
 
-    local function methodNotAllowedOnExecute(handlerData)
-        sendJson(handlerData.res, 405, '{"msg":"http method inválido"}')
-    end
-
+    --local function methodNotAllowedOnExecute(handlerData)
+    --    sendJson(handlerData.res, 405, '{"msg":"http method inválido"}')
+    --end
+    --
     local function notFoundOnExecute(handlerData)
         sendJson(handlerData.res, 404, '{"msg":"não achei"}')
     end
@@ -50,11 +47,14 @@ do
     local function sendFileOnExecute(handlerData, bodyObj)
         local fileName = handlerData.req.url:sub(2)
         local posIni, posFim, extensao = fileName:find('%.(%a+)$')
-        local fh = file.open(fileName)
+        local fh = file.open(fileName..handlerData.tipoGZ)
         if fh then
             handlerData.res:send(nil, 200)
             handlerData.res:send_header("Connection", "close")
             handlerData.res:send_header("Content-Type", mimeTypeTbl[extensao or 'txt'])
+            if (handlerData.tipoGZ=='.gz') then
+                handlerData.res:send_header("Content-Encoding","gzip")
+            end
             local acabou = false
             while (not acabou) do
                 local linha = fh:readline()
@@ -99,27 +99,45 @@ do
         if (bodyObj and bodyObj.ssid and bodyObj.pwd) then
             cfg.set({'wifi','sta','ssid'}, bodyObj.ssid)
             cfg.set({'wifi','sta','pwd'}, bodyObj.pwd)
-            statusOnExecute(handlerData)
+            sendJson(handlerData.res, 200, '{"ssid":"'.. bodyObj.ssid ..'","pwd":"'.. bodyObj.pwd ..'"}')
         else
             badRequestOnExecute(handlerData.res, {json='{"msg":"\'ssid\' ou \'pwd\' não definido"}'})
-        end
-    end
-
-    local function setNomeOnExecute(handlerData, bodyObj)
-        if (bodyObj and bodyObj.nome) then
-            cfg.set({'nome'}, bodyObj.nome)
-            statusOnExecute(handlerData)
-        else
-            badRequestOnExecute(handlerData.res, {json='{"msg":"\'nome\' não definido"}'})
         end
     end
 
     local function getNomeOnExecute(handlerData, bodyObj)
         cfg.get({"nome"},
                 function(v)
-                    sendJson(handlerData.res, 200, '{"nome":"'.. v.nome ..'"')
+                    sendJson(handlerData.res, 200, '{"nome":"'.. (v.nome or '') ..'"}')
                 end
         )
+    end
+
+    local function setNomeOnExecute(handlerData, bodyObj)
+        if (bodyObj and bodyObj.nome) then
+            cfg.set({'nome'}, bodyObj.nome)
+            getNomeOnExecute(handlerData, nil)
+        else
+            badRequestOnExecute(handlerData.res, {json='{"msg":"\'nome\' não definido"}'})
+        end
+    end
+
+    local function getWifiAps(handlerData, bodyObj)
+        local function callbackGetAp(t)
+            local ap_list = "["
+            local primeiro = true
+            for k, v in pairs(t) do
+                if (primeiro) then
+                    primeiro = false
+                else
+                    ap_list = ap_list .. ","
+                end
+                ap_list = ap_list .. '"' .. k .. '"'
+            end
+            sendJson(handlerData.res, 200,  (ap_list .. "]"));
+        end
+
+        wifi.sta.getap(callbackGetAp)
     end
 
     local srvTbl = {
@@ -130,6 +148,7 @@ do
         POST_gdm = { onExecute = gdmOnExecute },
         POST_lfm = { onExecute = lfmOnExecute },
         POST_setwifi = { onExecute = setWifiOnExecute },
+        GET_wifiAPs = { onExecute = getWifiAps},
         GET_File = { onExecute = sendFileOnExecute }
     }
 
@@ -162,18 +181,24 @@ do
                 if not ok then
                     handlerData.onExecute = badRequestOnExecute
                 end
-
+                collectgarbage()
                 node.task.post(node.task.LOW_PRIORITY, function()
                     handlerData:onExecute(bodyObj)
                     bodyObj = nil
+                    handlerData = nil
                 end)
             end
         end
 
         local nome = req.url:sub(2)
         local serviceIdent = req.method .. '_' .. nome
-        if (file.exists(nome)) then
+        if (file.exists(nome..'.gz')) then
+            handlerData.tipoGZ = '.gz';
             serviceIdent = req.method .. '_File' -- GET_File
+        else if (file.exists(nome)) then
+            handlerData.tipoGZ = '';
+            serviceIdent = req.method .. '_File' -- GET_File
+            end
         end
         if (srvTbl[serviceIdent]) then
             -- se o serviço estiver implementado:
@@ -181,8 +206,6 @@ do
         else
             handlerData.onExecute = notFoundOnExecute
         end
-
-        handlerData.onExecute = methodNotAllowedOnExecute
 
     end)
 end

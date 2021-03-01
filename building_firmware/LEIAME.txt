@@ -72,6 +72,9 @@ docker run --rm -ti -v c:\\Users\\Public\\trabalho\\projetos\\github\\nodemcu-fi
 docker run --rm -ti -v c:\Users\smarc\esp8266\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
 ( No windows, o Docker só irá conseguir fazer o mount de "D:\\smarc\\ESP8266\\nodemcu-firmware" se
 ele for uma das pastas da lista de sharing das configurações do Docker Desktop.)
+# NATALENE Ubuntu terminal
+$ cd /home/sergio/IdeaProjects/relogioBPICM/lfs/
+$ //mnt/c/Users/smarc/esp8266/nodemcu-firmware/luac.cross.int -o ../out/lfs.img -f *.lua
 
 3) pegar os dois binários que estarão na pasta D:\smarc\ESP8266\nodemcu-firmware\bin
 - 0x00000.bin will contain just the firmware.
@@ -110,6 +113,20 @@ Igual ao do raspberry, usando o nodemcu-tool.
 > old: node.flashreload("lfs.img")
 >
 
+=========================================
+-- NATELENE build script (folder out)
+[No terminal Ubuntu]
+$ cd /home/sergio/IdeaProjects/relogioBPICM
+$ ./build.sh
+
+Esse build.sh copia para a pasta ./out todos os arquivos necessários já compactados e o lua.img já feito.
+Para transferir para o nodemcu pelo próprio Ubuntu, use o comando abaixo:
+[No Powershell]
+$ cd /home/sergio/IdeaProjects/relogioBPICM
+$ nodemcu-tool upload --port=COM3 ./out/lfs.img
+$ nodemcu-tool upload --port=COM3 ./out/*.gz
+$ nodemcu-tool upload --port=COM3 ./out/*.lua
+$ nodemcu-tool upload --port=COM3 ./out/*.json
 
 =========================================
 ** Comandos uteis para usar no terminal com o ESP8266 **
@@ -151,3 +168,4 @@ Resolver DNS:
 net.dns.resolve("www.cachambi.com.br", function(sk, ip)
     if (ip == nil) then print("DNS fail!") else print(ip) end
 end)
+

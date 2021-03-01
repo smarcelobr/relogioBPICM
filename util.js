@@ -51,3 +51,13 @@ function ajax(method, url, bodyData, successCallback, errorCallback, completeCal
     }
 }
 
+/**
+ *
+ * @param {HTMLElement} elemento
+ */
+function removeChildren(elemento) {
+// remove todas as linhas pre-existentes:
+    while (elemento.lastElementChild) {
+        elemento.removeChild(elemento.lastElementChild);
+    }
+}

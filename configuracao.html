@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuração</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<h1>Configuração</h1>
+<div id="cfg">
+    <label for="inputNome">Nome:</label>
+    <input id="inputNome" name="nome" type="text" class="controle" value=""/>
+    <button id="salvarNomeBtn" class="controle" type="button" onclick="salvarNomeBtn()">Salvar Nome</button>
+    <div id="cfg_wifi">
+        <p>wifi SSID: <span id="cfg_wifi_sta_ssid">&nbsp;</span></p>
+        <p>wifi PASS: <span id="cfg_wifi_sta_pwd">&nbsp;</span></p>
+        <button id="editarWifiStationConfigBtn" class="controle" type="button" onclick="editarWifiStationConfigBtn()">Alterar Wifi</button>
+    </div>
+    <div id="cfg_wifi_edit" style="display: none">
+        <label for="select_cfg_wifi_sta_ssid">wifi SSID:</label>
+        <select id="select_cfg_wifi_sta_ssid" name="selectWifi" class="controle">
+        </select>
+        <label for="inputWifiPass">wifi PASS:</label><input class="controle" id="inputWifiPass" name="inputWifiPass" value=""/>
+        <button id="salvarWifiStationConfigBtn" class="controle" type="button" onclick="salvarWifiStationConfigBtn()">Salvar Wifi</button>
+    </div>
+    <div id="rtc">
+        <p>Tabela de Horário de Verão</p>
+        <table>
+            <thead><tr><th>Data</th><th>dif</th></tr></thead>
+            <tbody id="tbody_hora_verao"></tbody>
+        </table>
+    </div>
+</div>
+<a href="controle.html">[ Status ]</a>
+
+<script src="util.js"></script>
+<script src="configuracao.js"></script>
+
+</body>
+</html>

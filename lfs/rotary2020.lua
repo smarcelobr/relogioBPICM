@@ -12,6 +12,7 @@ do
   require("app_wifi")
   require("gdate")
   require("relogioInternet")
+  --require("configuracoes")
   require("rencoder")
   require("telnet"):open()
   require("webservices")
@@ -35,6 +36,7 @@ do
   local function printStatusJson()
     local ok, json = pcall(sjson.encode, status())
     print(json)
+    json = nil
   end
 
   local function falhouMotor()
@@ -119,8 +121,8 @@ do
     else
         if (ptrMin == (minutoAlvo or ptrMin)) then
             if (difGMIN == 0) then
-              if not tmr.create():alarm(200, tmr.ALARM_SINGLE, function()
-                -- desliga o motor apos 200ms para distanciar um pouco do edge.
+              if not tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
+                -- desliga o motor apos 500ms para distanciar um pouco do edge.
                 motor.desligar()
               end)
               then

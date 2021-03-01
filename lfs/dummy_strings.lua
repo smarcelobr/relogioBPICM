@@ -37,7 +37,12 @@ local preload = "?.lc;?.lua", "/\n;\n?\n!\n-", "@init.lua", "_G", "_LOADED",
 "net.udpsocket", "newproxy", "package", "pairs", "path", "preload", "reload",
 "require", "seeall", "wdclr", "not enough memory", "sjson.decoder","sjson.encoder",
 "tmr.timer","%q","'","' = '",",","=stdin","Lua 5.1","RAM","Running","Setting '",
-"_VERSION","__metatable","a","bar","decoder","foo","kv","local preload=",
+"_VERSION","__metatable","a","bar","decoder","foo","kv",
 "ok.flag","ok.flag foi apagado ou renomeado.","pcall","rawset","startup",
-"stdin","tmrStartup","tostring"
-
+"stdin","tmrStartup","tostring","\",\"size\":","%s\"%s\"","%s%s","=",
+"@util.lua","ap-list:[","cat","fromBase64","ft","ftb","ftc","fto","ftt",
+"listAPs","listfs","nil","onerror","rename","transfer.tmp","wday","yday",
+"{","{\"name\"=\"","{\"r\":\"err\"}","{\"r\":\"ok\"}","}","Content-Encoding","gzip",
+"Content-Type","Connection","close",".gz","Falhou ao ler arquivo.",
+'{"msg":"json invalido no body"}','{"msg":"falhou o encode"}', '{"msg":"não achei"}',
+'text/plain','text/html','text/javascript','text/css','application/json'
