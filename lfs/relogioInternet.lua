@@ -145,6 +145,12 @@ do
        }
     end
 
+    rtc.set = function(epochSec)
+        rtctime.set(epochSec, 0);
+        cfg.get({"rtc","dif"}, atualizaDifTimezone);
+        sucesso = true;
+    end
+
     rtc.init = function(pOnChange)
         fOnChange=pOnChange
     end

@@ -140,6 +140,36 @@ do
         wifi.sta.getap(callbackGetAp)
     end
 
+    --[[
+    Ajusta a hora do RTC em Unix Epoch (segundos)
+    Body request: (exemplo abaixo muda para 19/03/2021 18:00:00 GMT-3:00)
+      {"epoch": 1616187600 }
+    --]]
+    local function setTimeOnExecute(handlerData, bodyObj)
+        if (bodyObj and bodyObj.epoch) then
+            rtc.set(bodyObj.epoch)
+            statusOnExecute(handlerData)
+        else
+            badRequestOnExecute(handlerData.res, {json='{"msg":"\'epoch\' não definido"}'})
+        end
+    end
+
+    --[[
+    Pausa o sistema (não movimenta a cada minuto).
+    --]]
+    local function pausarOnExecute(handlerData, bodyObj)
+        r.pausar();
+        statusOnExecute(handlerData)
+    end
+
+    --[[
+    Continua o sistema após a pausa (movimenta a cada minuto).
+    --]]
+    local function continuarOnExecute(handlerData, bodyObj)
+        r.continuar();
+        statusOnExecute(handlerData)
+    end
+
     local srvTbl = {
         GET_status = { onExecute = statusOnExecute },
         POST_nome = { onExecute = setNomeOnExecute },
@@ -149,7 +179,10 @@ do
         POST_lfm = { onExecute = lfmOnExecute },
         POST_setwifi = { onExecute = setWifiOnExecute },
         GET_wifiAPs = { onExecute = getWifiAps},
-        GET_File = { onExecute = sendFileOnExecute }
+        GET_File = { onExecute = sendFileOnExecute },
+        POST_time = { onExecute = setTimeOnExecute },
+        POST_pausar = { onExecute = pausarOnExecute},
+        POST_continuar = { onExecute = continuarOnExecute}
     }
 
     httpserver.createServer(80, function(req, res)

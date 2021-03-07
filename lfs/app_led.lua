@@ -28,7 +28,8 @@ do
     normal = {500},
     fast = {200},
     loading = {400,2400},
-    error = {1200,200,200,200}
+    error1 = {1200,200,200,200}, -- algo errado no disco dos minutos (60 divisoes)
+    error2 = {1200,200,600,200}, -- algo errado nos discos das horas (dois discos mais internos)
   }
 
   local piscaCtx = {
@@ -42,11 +43,11 @@ do
     else 
        gpioOn()
     end
+    timer:interval(intervals[piscaCtx.modo][math.min(piscaCtx.idx,#intervals[piscaCtx.modo])])
     piscaCtx.idx = piscaCtx.idx + 1
     if (piscaCtx.idx > #intervals[piscaCtx.modo]) then
       piscaCtx.idx = 1
     end
-    timer:interval(intervals[piscaCtx.modo][piscaCtx.idx])
   end
   
   local piscaLedTimer = tmr.create() 
@@ -58,10 +59,7 @@ do
     piscaCtx.modo = modo
     piscaCtx.idx = 1
     piscaLedTimer:interval(intervals[piscaCtx.modo][piscaCtx.idx])
-    if not piscaLedTimer:start()
-    then  
-        --print("problemas no piscaLedTimer")
-    end    
+    piscaLedTimer:start()
   end
 
   local function off()

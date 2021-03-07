@@ -1,9 +1,11 @@
 do
     -- desliga o motor do relogio caso esteja ligado...
-    gpio.mode(1,gpio.OUTPUT);
-    gpio.mode(2,gpio.OUTPUT);
-    gpio.write(1,gpio.HIGH);
+    gpio.mode(1,gpio.OUTPUT)
+    gpio.mode(2,gpio.OUTPUT)
+    gpio.write(1,gpio.HIGH)
     gpio.write(2,gpio.HIGH)
+    -- liga o LED: GPIO(0,LOW)
+    gpio.write(0,gpio.LOW)
 
   function startup()
     tmrStartup = nil

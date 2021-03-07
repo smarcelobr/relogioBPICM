@@ -26,23 +26,22 @@ do
     return status ~= 0
   end
 
-    
-    local motorTmr = tmr.create()
-    motorTmr:register(200, tmr.ALARM_SEMI, 
-      function() 
-        if (pinLigando == pinMotor1) or (pinLigando == pinMotor2) then
-            gpio.write(pinLigando, gpio.LOW)
-            pinLigando = -1
-        end
-        ligando = false
-      end)
+  local motorTmr = tmr.create()
+  motorTmr:register(200, tmr.ALARM_SEMI,
+    function()
+      if (pinLigando == pinMotor1) or (pinLigando == pinMotor2) then
+          gpio.write(pinLigando, gpio.LOW)
+          pinLigando = -1
+      end
+      ligando = false
+    end)
 
 
   motor.ligarClockwise = function ()
 	-- Aciona o motor
 	status = 1 -- clockwise
 	gpio.write(pinMotor1, gpio.HIGH)
-    gpio.write(pinMotor2, gpio.HIGH)
+    --gpio.write(pinMotor2, gpio.HIGH)
     pinLigando = pinMotor2
     motorTmr:start()    
   end    
@@ -52,7 +51,7 @@ do
     status = 2 -- counterclockwise
     ligando = true
     gpio.write(pinMotor2, gpio.HIGH)
-    gpio.write(pinMotor1, gpio.HIGH)
+    --gpio.write(pinMotor1, gpio.HIGH)
     pinLigando = pinMotor1
     motorTmr:start()    
   end

@@ -48,11 +48,12 @@ do
 
     local HorMinCode = {minCount = 100,                        
                         minArray = {},
-                        currHour = 'n/a'
+                        currHour = 'n/a',
+                        ultimaHoraDetectada = nil
                         }
 
   	-- usDelay do motor - 
-	local P_Delay_Min = 200*1000 -- 200000μs => 200ms
+	local P_Delay_Min = 600*1000 -- 200000μs => 200ms
 	--local P_Delay_Hr = 200*1000 -- 50000μs => 50ms
 
 	function debounce (func, usDelay)
@@ -156,17 +157,28 @@ do
                 HorMinCode.minArray = {}
                 HorMinCode.minCount = 100
                 if (lHoraDetect~=nil) then
-                  if vMinInc == 1 then
-                     -- cw
-                     pMinuto = 0
-                  else 
-                     -- ccw
-                     pMinuto = 45
-                  end
-                  if (pHora == nil) then
-                    -- acerta a hora
-                    pHora = lHoraDetect
-                  end
+                    if vMinInc == 1 then
+                        -- cw
+                        pMinuto = 0
+                    else
+                        -- ccw
+                        pMinuto = 45
+                    end
+                    if (pHora == nil) then
+                        -- acerta a hora
+                        pHora = lHoraDetect
+                    else
+                        -- confere pHora a cada duas horas
+                        if HorMinCode.ultimaHoraDetectada and lHoraDetect == ((HorMinCode.ultimaHoraDetectada+vMinInc) % 12) then
+                            if pHora ~= lHoraDetect then
+                                -- ajuste da hora dos ponteiros na conferencia.
+                                pHora = lHoraDetect
+                            end
+                        end
+                    end
+                    HorMinCode.ultimaHoraDetectada = lHoraDetect
+                else
+                    HorMinCode.ultimaHoraDetectada = nil
                 end
             end
 
@@ -285,7 +297,9 @@ do
     return {
         time = rencoder.ptr.toStr(),
         difMinutos = difMinutos,
-        savePendent = savePendent
+        savePendent = savePendent,
+        ultHora = HorMinCode.ultimaHoraDetectada,
+        ultCod=HorMinCode.currHour
     }
   end
   
