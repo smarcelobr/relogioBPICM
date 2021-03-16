@@ -170,6 +170,14 @@ do
         statusOnExecute(handlerData)
     end
 
+    --[[
+    Continua o sistema após a pausa (movimenta a cada minuto).
+    --]]
+    local function restartOnExecute(handlerData, bodyObj)
+        node.restart();
+        statusOnExecute(handlerData)
+    end
+
     local srvTbl = {
         GET_status = { onExecute = statusOnExecute },
         POST_nome = { onExecute = setNomeOnExecute },
@@ -182,7 +190,8 @@ do
         GET_File = { onExecute = sendFileOnExecute },
         POST_time = { onExecute = setTimeOnExecute },
         POST_pausar = { onExecute = pausarOnExecute},
-        POST_continuar = { onExecute = continuarOnExecute}
+        POST_continuar = { onExecute = continuarOnExecute},
+        POST_restart = { onExecute = restartOnExecute},
     }
 
     httpserver.createServer(80, function(req, res)

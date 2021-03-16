@@ -122,7 +122,7 @@ $ ./build.sh
 Esse build.sh copia para a pasta ./out todos os arquivos necessários já compactados e o lua.img já feito.
 Para transferir para o nodemcu pelo próprio Ubuntu, use o comando abaixo:
 [No Powershell]
-$ cd /home/sergio/IdeaProjects/relogioBPICM
+$ cd \\wsl$\Ubuntu\home\sergio\IdeaProjects\relogioBPICM
 $ nodemcu-tool upload --port=COM3 ./out/lfs.img
 $ nodemcu-tool upload --port=COM3 ./out/*.gz
 $ nodemcu-tool upload --port=COM3 ./out/*.lua

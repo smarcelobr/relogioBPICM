@@ -28,8 +28,8 @@ do
     normal = {500},
     fast = {200},
     loading = {400,2400},
-    error1 = {1200,200,200,200}, -- algo errado no disco dos minutos (60 divisoes)
-    error2 = {1200,200,600,200}, -- algo errado nos discos das horas (dois discos mais internos)
+    error1 = {200,200,1200,200,200,1000}, -- algo errado no disco dos minutos (60 divisoes)
+    error2 = {200,200,1200,200,600,1000}, -- algo errado nos discos das horas (dois discos mais internos)
   }
 
   local piscaCtx = {
