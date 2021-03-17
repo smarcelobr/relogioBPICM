@@ -53,7 +53,7 @@ do
     }
 
     -- usDelay do motor -
-    local P_Delay_Min = 1000 * 1000 -- 1000000μs => 1000ms => 1seg
+    local P_Delay_Min = 800 * 1000 -- 800000μs => 800ms => 0.8seg
     --local P_Delay_Hr = 200*1000 -- 50000μs => 50ms
 
     function debounce (func, usDelay)
@@ -167,29 +167,23 @@ do
                 HorMinCode.minArray = {}
                 HorMinCode.minCount = 100
                 if (lHoraDetect ~= nil) then
-                    if vMinInc == 1 then
-                        -- cw
-                        pMinuto = 0
-                    else
-                        -- ccw
-                        pMinuto = 45
-                    end
-                    if (pHora == nil) then
-                        -- acerta a hora
-                        pHora = lHoraDetect
-                    else
-                        -- confere pHora a cada duas horas
-                        if HorMinCode.ultimaHoraDetectada and lHoraDetect == ((HorMinCode.ultimaHoraDetectada + vMinInc) % 12) then
-                            if pHora ~= lHoraDetect then
-                                -- ajuste da hora dos ponteiros na conferencia.
-                                pHora = lHoraDetect
-                            end
+                    if pHora == nil or  -- acerta a hora se não estiver estabelecida
+                            (HorMinCode.ultimaHoraDetectada and -- ou confere e acerta pHora a cada duas horas
+                            lHoraDetect == ((HorMinCode.ultimaHoraDetectada + vMinInc) % 12)) then
+                        if pHora ~= lHoraDetect then
+                            -- ajuste da hora dos ponteiros na conferencia.
+                            pHora = lHoraDetect
+                        end
+                        if vMinInc == 1 then
+                            -- cw
+                            pMinuto = 0
+                        else
+                            -- ccw
+                            pMinuto = 45
                         end
                     end
-                    HorMinCode.ultimaHoraDetectada = lHoraDetect
-                else
-                    HorMinCode.ultimaHoraDetectada = nil
                 end
+                HorMinCode.ultimaHoraDetectada = lHoraDetect
             end
 
             node.task.post(node.task.MEDIUM_PRIORITY, notifyChange)
