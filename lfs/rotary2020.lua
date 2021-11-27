@@ -89,10 +89,15 @@ do
                     contaEncoder = 0 -- reseta o contador. Quem incrementa é a funcao callback chamada pelo encoder
                     motor.ligarClockwise()
                 else
-                    if (difGMIN > 0) then
-                        contaEncoder = 0 -- reseta o contador. Quem incrementa é a funcao callback chamada pelo encoder
-                        motor.ligarCounterClockwise()
-                    end
+                    --[[
+                    Comentei as linhas abaixo para inibir o relógio de girar no sentido anti-horário.
+                    O motivo é que os relés estavam quebrando facilmente, provavelmente por faíscas causas devido
+                    a alta corrente gerada na reversão do motor.
+                    --]]
+--                     if (difGMIN > 0) then
+--                         contaEncoder = 0 -- reseta o contador. Quem incrementa é a funcao callback chamada pelo encoder
+--                         motor.ligarCounterClockwise()
+--                     end
                 end
             end
         end
@@ -179,6 +184,7 @@ do
     r.lfm = function() -- Retomar o funcionamento do motor
         -- limpa o flag de erro do motor permitindo a retomada do funcionamento.
         falhaMotor = false
+        contaEncoder = 1; -- qq valor acima de zero para não retorna no modo falha
         -- se estava buscando a hora, religa o motor
         if isBuscaHora then
             buscarHoraCW()
