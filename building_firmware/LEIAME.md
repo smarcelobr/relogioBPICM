@@ -6,6 +6,27 @@ alterei para o projeto do  relógio estão na mesma página que esse
 `LEIAME.md`.
 
 ---
+## nodemcu-build.com
+
+1. vá até https://nodemcu-build.com/.
+
+2. Escolher os módulos:
+
+ bit encoder file gpio http net node rtctime sjson sntp spi tmr uart wifi.
+
+3. LFS options:
+
+- LFS Size: 128KB
+- SPIFFS base: 0, start right after firmware
+- SPIFFS size: all free flash
+
+4. Aguarde o aviso por e-mail e realize o download. 
+
+5. Faz o upload no ESP8266 usando o comando:
+
+_(powershell)_
+
+    esptool.py --port COM3 write_flash -fm dio 0x00000 C:\Users\smarc\Downloads\nodemcu-release-14-modules-2021-11-27-23-49-50-integer.bin
 
 ## RASPBERRY PI (*nux)
 
@@ -97,6 +118,14 @@ NATALENE (power shell):
     $ docker run --rm -ti -v D:\\smarc\\ESP8266\\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
     docker run --rm -ti -v c:\\Users\\Public\\trabalho\\projetos\\github\\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
 
+#### Xeonling Powershell
+
+    docker run --rm -ti -v D:\smarc\Projetos\github\nodemcu\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
+
+-- alternativa caso a pasta atual ($pwd) já seja a do firmware :
+
+    docker run --rm -ti -v ${pwd}:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
+
 #### NATALENE PowerShell:
 
     docker run --rm -ti -v c:\Users\smarc\esp8266\nodemcu-firmware:/opt/nodemcu-firmware marcelstoer/nodemcu-build build
@@ -127,10 +156,14 @@ _(powershell ou cmd)_
     $ esptool.py --port COM3 write_flash -fm dio 0x00000 c:\Users\smarc\esp8266\nodemcu-firmware\bin\0x00000.bin
     $ esptool.py --port COM3 write_flash -fm dio 0x10000 c:\Users\smarc\esp8266\nodemcu-firmware\bin\0x10000.bin
 
+Alternativa, gravando o binário completo:
+
+    esptool.py --port COM3 write_flash -fm dio 0x00000 c:\Users\smarc\esp8266\nodemcu-firmware\bin\nodemcu_integer_release_20201227-2216.bin
+
 Apagar o flash antes de gravar pode corrigir problemas de boot
 
-    $ esptool.py --port COM3 write_flash -fm dio 0x00000 c:\Users\smarc\esp8266\nodemcu-firmware\bin\0x00000.bin
-    esptool.py --port COM3 write_flash -fm dio 0x00000 c:\Users\smarc\esp8266\nodemcu-firmware\bin\nodemcu_integer_release_20201227-2216.bin
+    esptool.py --port COM3 erase_flash
+
 
 #### NOVO LFS 
 
@@ -140,6 +173,12 @@ Apagar o flash antes de gravar pode corrigir problemas de boot
 NATALENE:
 
     docker run --rm -ti -v c:\Users\smarc\esp8266\nodemcu-firmware:/opt/nodemcu-firmware -v \\wsl$\Ubuntu\home\sergio\IdeaProjects\relogioBPICM\lfs:/opt/lua marcelstoer/nodemcu-build lfs-image
+
+XeonLing POWERSHELL:
+
+    cd D:\smarc\Projetos\github  (<--pasta atual = $pwd)
+    docker run --rm -ti -v ${pwd}\nodemcu\nodemcu-firmware:/opt/nodemcu-firmware -v ${pwd}\smarcelobr\relogioBPICM\lfs:/opt/lua marcelstoer/nodemcu-build lfs-image
+
 
 #### Uploading files to SPIFFS 
 
@@ -153,7 +192,6 @@ ou, no terminal do nodemcu:
 
     > print(node.LFS.reload("lfs.img"))
     > old: node.flashreload("lfs.img")
-    
 
 ---
 
@@ -165,7 +203,8 @@ ou, no terminal do nodemcu:
     $ ./build.sh
 
 Esse build.sh copia para a pasta ./out todos os arquivos necessários já compactados e o lua.img já feito.
-Para transferir para o nodemcu pelo próprio Ubuntu, use o comando abaixo:
+
+Para transferir para o nodemcu, tem que ser pelo PowerShell através dos comandos abaixo:
 
 ### [No Powershell]
 
@@ -183,9 +222,15 @@ Para acionar o terminal:
 
     $ nodemcu-tool -p COM3 -b 115200 terminal
 
+_se o baudrate for diferente:_
+
+    $ nodemcu-tool -p COM3 -b 74880 terminal
+
+
 Listar arquivos: (requer util.lua)
 
-    $ listfs()
+$ dofile("util.lua")    
+$ listfs()
 
 Excluir um arquivo:
 

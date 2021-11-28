@@ -1,9 +1,17 @@
 do
-    -- desliga o motor do relogio caso esteja ligado...
-    gpio.mode(1,gpio.OUTPUT)
-    gpio.mode(2,gpio.OUTPUT)
-    gpio.write(1,gpio.HIGH)
-    gpio.write(2,gpio.HIGH)
+    do
+      -- desliga o motor do relogio caso esteja ligado...
+        gpio.mode(1,gpio.OUTPUT)
+        gpio.mode(2,gpio.OUTPUT)
+
+        local levelDesliga = gpio.LOW
+        if file.exists("motorOnIsLOW.flag") then
+           levelDesliga = gpio.HIGH
+        end
+        gpio.write(1,levelDesliga)
+        gpio.write(2,levelDesliga)
+    end
+
     -- liga o LED: GPIO(0,LOW)
     gpio.write(0,gpio.LOW)
 
@@ -26,7 +34,7 @@ do
   print("Waiting ...")
   
   tmrStartup = tmr.create()
-  if not tmrStartup:alarm(20*1000, tmr.ALARM_SINGLE, startup) -- 20 segundos
+  if not tmrStartup:alarm(5*1000, tmr.ALARM_SINGLE, startup) -- 5 segundos
   then  
     print("init.lua: Problemas no tmrStartup")
   end
