@@ -5,14 +5,53 @@ como o user_config.h, user_modules.h e outros. Os arquivos que
 alterei para o projeto do  relógio estão na mesma página que esse
 `LEIAME.md`.
 
----
+#### user_config.h
+
+    Index: app/include/user_config.h
+    @@ -50,7 +50,7 @@
+    -//#define LUA_NUMBER_INTEGRAL
+    +#define LUA_NUMBER_INTEGRAL
+    @@ -79,7 +79,7 @@
+    -//#define LUA_FLASH_STORE                   0x10000
+    +#define LUA_FLASH_STORE                   0x10000
+    @@ -111,7 +111,7 @@
+    -//#define SPIFFS_MAX_FILESYSTEM_SIZE 0x20000
+    +#define SPIFFS_MAX_FILESYSTEM_SIZE 0x100000
+    
+    @@ -189,7 +189,7 @@
+    -#define ENDUSER_SETUP_AP_SSID "NodeMCU"
+    +#define ENDUSER_SETUP_AP_SSID "esp-12 SMCF"
+
+#### user_modules.h
+
+    -#define LUA_USE_MODULES_ADC
+    +//#define LUA_USE_MODULES_ADC
+    -#define LUA_USE_MODULES_DHT
+    +//#define LUA_USE_MODULES_DHT
+    -//#define LUA_USE_MODULES_ENCODER
+    +#define LUA_USE_MODULES_ENCODER
+    -//#define LUA_USE_MODULES_HTTP
+    +#define LUA_USE_MODULES_HTTP
+    -#define LUA_USE_MODULES_I2C
+    +//#define LUA_USE_MODULES_I2C
+    -#define LUA_USE_MODULES_MQTT
+    +//#define LUA_USE_MODULES_MQTT
+    -#define LUA_USE_MODULES_OW
+    +//#define LUA_USE_MODULES_OW
+    -//#define LUA_USE_MODULES_RTCTIME
+    +#define LUA_USE_MODULES_RTCTIME
+    -//#define LUA_USE_MODULES_SJSON
+    +#define LUA_USE_MODULES_SJSON
+    -//#define LUA_USE_MODULES_SNTP
+    +#define LUA_USE_MODULES_SNTP
+    
 ## nodemcu-build.com
 
 1. vá até https://nodemcu-build.com/.
 
 2. Escolher os módulos:
 
- bit encoder file gpio http net node rtctime sjson sntp spi tmr uart wifi.
+ bit encoder file gpio http net node rtctime sjson sntp spi timer uart wifi.
 
 3. LFS options:
 
@@ -27,6 +66,7 @@ alterei para o projeto do  relógio estão na mesma página que esse
 _(powershell)_
 
     esptool.py --port COM3 write_flash -fm dio 0x00000 C:\Users\smarc\Downloads\nodemcu-release-14-modules-2021-11-27-23-49-50-integer.bin
+    esptool.py --port COM3 write_flash -fm dio 0x00000 D:\smarc\Projetos\github\smarcelobr\relogioBPICM\building_firmware\nodemcu-release-14-modules-2021-12-20-22-38-55-integer.bin
 
 ## RASPBERRY PI (*nux)
 
@@ -42,7 +82,7 @@ Comandos para compilar o firmware do nodemcu no RASPBERRY:
 
 ### FLASHING FIRMWARE (raspi)
 
-Para saber o tamanho do FLASH:
+Para saber o tamanho do FLASH: (juntar GPIO0 e GND se não for via USB)
 
     $ cd /home/pi/.local/lib/python3.7/site-packages
     $ python3.7 esptool.py --port /dev/ttyUSB0 flash_id
@@ -203,6 +243,8 @@ ou, no terminal do nodemcu:
     $ ./build.sh
 
 Esse build.sh copia para a pasta ./out todos os arquivos necessários já compactados e o lua.img já feito.
+
+## NATALENE transfer project files
 
 Para transferir para o nodemcu, tem que ser pelo PowerShell através dos comandos abaixo:
 
