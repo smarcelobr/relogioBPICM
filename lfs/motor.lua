@@ -5,16 +5,16 @@ end
 
 motor = {}
 do
-	local pinMotor1, pinMotor2 = 1, 2
+	local pinMotorCW, pinMotorCCW = 1, 2
 	local motor_ON, motor_OFF = gpio.HIGH, gpio.LOW
     if file.exists("motorOnIsLOW.flag") then
        motor_ON, motor_OFF = gpio.LOW, gpio.HIGH
     end
 
-	gpio.mode(pinMotor1,gpio.OUTPUT)
-	gpio.mode(pinMotor2,gpio.OUTPUT)  
-	gpio.write(pinMotor1,motor_OFF)
-	gpio.write(pinMotor2,motor_OFF)
+	gpio.mode(pinMotorCCW,gpio.OUTPUT)
+	gpio.mode(pinMotorCW,gpio.OUTPUT)
+	gpio.write(pinMotorCCW,motor_OFF)
+	gpio.write(pinMotorCW,motor_OFF)
 
 	local status, pinLigando = 0, -1
 
@@ -33,7 +33,7 @@ do
   local motorTmr = tmr.create()
   motorTmr:register(200, tmr.ALARM_SEMI,
     function()
-      if (pinLigando == pinMotor1) or (pinLigando == pinMotor2) then
+      if (pinLigando == pinMotorCCW) or (pinLigando == pinMotorCW) then
           gpio.write(pinLigando, motor_ON)
           pinLigando = -1
       end
@@ -44,9 +44,9 @@ do
   motor.ligarClockwise = function ()
 	-- Aciona o motor
 	status = 1 -- clockwise
-	gpio.write(pinMotor1, motor_OFF)
-    --gpio.write(pinMotor2, motor_OFF)
-    pinLigando = pinMotor2
+	gpio.write(pinMotorCCW, motor_OFF)
+    --gpio.write(pinMotorCW, motor_OFF)
+    pinLigando = pinMotorCW
     motorTmr:start()    
   end    
 	
@@ -54,17 +54,17 @@ do
     -- Aciona o motor
     status = 2 -- counterclockwise
     ligando = true
-    gpio.write(pinMotor2, motor_OFF)
-    --gpio.write(pinMotor1, motor_OFF)
-    pinLigando = pinMotor1
+    gpio.write(pinMotorCW, motor_OFF)
+    --gpio.write(pinMotorCCW, motor_OFF)
+    pinLigando = pinMotorCCW
     motorTmr:start()    
   end
 
   motor.desligar = function ()
 	-- desliga o motor
     pinLigando = -1
-    gpio.write(pinMotor1, motor_OFF)
-	gpio.write(pinMotor2, motor_OFF)
+    gpio.write(pinMotorCCW, motor_OFF)
+	gpio.write(pinMotorCW, motor_OFF)
 	status = 0
   end
 

@@ -1,3 +1,52 @@
+# Controlador do Relógio da Torre baseado no ESP8266 
+
+## Módulo ESP8266 Wireless WIFI Relay Controller
+
+Esta aplicação foi construído inicialmente para plaquinha ESP12, porém, agora estou 
+adaptando-a para usar uma plaquinha do ESP8266 que já vem com um relé. 
+
+Apesar de poder ser alimentado com uma voltagem entre 5V e 80V, os microcontrolador com apenas 3,3V. Um conversor 
+é necessário quando precisa se integrar com módulos sensores que esperam outras voltagens.
+
+Descrição:
+- ESP8266 Wireless WIFI Relay Controller Module Single-channel Relay Module ESP 12F Development Board for IOT Smart Home DC5V-80V
+
+![ESP8266 Relay Controller Module](../docs/esp8266_with_relay.png)
+
+O link no qual eu comprei foi:
+
+https://www.aliexpress.com/item/1005002907740418.html
+
+## Sensores óticos
+
+O projeto utiliza dois sensores óticos. Um para o disco dos minutos e outro para os discos das horas.
+
+O módulo com o sensor ótico é o "3D Printer Optical Endstop TCST2103 Optical Control Limit Optical Switch RAMPS 1.4". 
+Ele funciona com 5V e é necessário usar um conversor de 5V-3V3 para ele se conectar ao módulo do ESP8266.
+
+![RAMPS 1.4 Optical Endstop](../docs/Optical_Endstop_TCST2103.png)
+
+
+
+#### Pinos
+
+    nodemcu | board   | Function
+    --------|---------|-----------------------------------
+      0     | GPIO 16 | LED onboard (HIGH-off / LOW-on)
+      1     | GPIO 5  | Relay onboard (HIGH-on / LOW-off)
+      2     | GPIO 4  | não usado - (recomendado para Relé além do GPIO 5)
+      3     | GPIO 0  | não usado - (melhor não usar para INPUT, pois, usa para entrar no flash)
+      4     | GPIO 2  | não usado - (melhor não usar para INPUT, pois, usa para entrar no flash)
+      5     | GPIO 14 | signal sensor ótico - Minutos
+      6     | GPIO 12 | signal sensor ótico - Horas
+      7     | GPIO 13 |
+      8     | GPIO 15 | não usado - (melhor não usar para INPUT, pois, usa para entrar no flash)
+      9     | GPIO 3  |
+     10     | GPIO 1  |
+     11     | GPIO 9  |
+     12     | GPIO 10 |
+
+
 ## BUILDING FIRMWARE 
 
 Primeiro, deve-se fazer as mudanças nos arquivos de header (.h)
@@ -77,7 +126,6 @@ Comandos para compilar o firmware do nodemcu no RASPBERRY:
     $ make TOOLCHAIN_ROOT=~/xtensa/esp8266-linux-arm_32-20191111.0/
 
 (ref.: https://github.com/nodemcu/nodemcu-firmware/issues/2958)
-
 
 
 ### FLASHING FIRMWARE (raspi)
@@ -300,16 +348,25 @@ retomar a execução normal:
 
 para acertar o ssid do wifi:
 
-    cfg.set({'wifi','sta','ssid'}, 'jardimdomeier'); cfg.set({'wifi','sta','pwd'}, 'sergioeluciene'); node.restart()
+    -- em casa
+    cfg.set({'wifi','sta','ssid'}, 'jardimdomeier'); cfg.set({'wifi','sta','pwd'}, 'xxx'); node.restart()
+
+    -- na igreja
+    cfg.set({'wifi','sta','ssid'}, 'BICM TORRE'); cfg.set({'wifi','sta','pwd'}, 'xxx'); node.restart()
 
 modo do wifi:
 
     print(wifi.getmode());
     print(wifi.sta.getstatus());
+    print(wifi.sta.getip())
 
 Resolver DNS:
 
     net.dns.resolve("www.cachambi.com.br", function(sk, ip)
         if (ip == nil) then print("DNS fail!") else print(ip) end
     end)
+
+Reiniciar o nodemcu:
+
+    node.restart()
 
