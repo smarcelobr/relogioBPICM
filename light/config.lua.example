@@ -1,0 +1,11 @@
+--[[
+ Todas as configurações de ambiente ficam nesse arquivo.
+--]]
+local config = {}
+
+config.wifi = {
+  ssid = "my-wifi-ssid",
+  pwd = "my-wifi-pass"
+}
+
+return config;
