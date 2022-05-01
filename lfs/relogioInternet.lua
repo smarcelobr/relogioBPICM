@@ -20,7 +20,7 @@ do
 
   local function notifyChange()
       if (fOnChange) then
-          fOnChange()
+         node.task.post(node.task.MEDIUM_PRIORITY, fOnChange)
       end
   end
   

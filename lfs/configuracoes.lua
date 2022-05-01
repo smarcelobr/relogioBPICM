@@ -34,7 +34,7 @@ do
          linha = fd:readline()
       end
       fd:close(); fd = nil
-	  
+
       if callback~=nil then callback(decoder:result()) end
 	  
     else

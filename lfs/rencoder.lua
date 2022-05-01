@@ -91,7 +91,9 @@ do
 
     local function notifyChange()
         if (fOnChange) then
-            fOnChange(calcGMIN(), pMinuto, pHora)
+           node.task.post(node.task.MEDIUM_PRIORITY, function()
+              fOnChange(calcGMIN(), pMinuto, pHora)
+           end )
         end
     end
 
@@ -186,7 +188,7 @@ do
                 HorMinCode.ultimaHoraDetectada = lHoraDetect
             end
 
-            node.task.post(node.task.MEDIUM_PRIORITY, notifyChange)
+            notifyChange();
             return true -- pedido já processado, true evita bounce
         else
             return false -- não está no level esperado, permite bounce

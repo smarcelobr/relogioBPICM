@@ -100,7 +100,7 @@ alterei para o projeto do  relógio estão na mesma página que esse
 
 2. Escolher os módulos:
 
- bit encoder file gpio http net node rtctime sjson sntp spi timer uart wifi.
+ bit, encoder, file, GPIO, HTTP, net, node, RTC time, SJSON, SNTP, SPI, timer, UART, WiFi.
 
 3. LFS options:
 
@@ -278,7 +278,7 @@ Igual ao do raspberry, usando o nodemcu-tool.
    
 ou, no terminal do nodemcu:
 
-    > print(node.LFS.reload("lfs.img"))
+    > file.rename('not_ok.flag','ok.flag'); print(node.LFS.reload("lfs.img"))
     > old: node.flashreload("lfs.img")
 
 ---
@@ -334,7 +334,10 @@ Renomear Arquivo:
 desligar o motor:
 
 	gpio.mode(1,gpio.OUTPUT);
+    -- liga relé
 	gpio.write(1,gpio.HIGH);
+    -- liga desliga relé
+    gpio.write(1,gpio.LOW);
 	gpio.mode(2,gpio.OUTPUT);
 	gpio.write(2,gpio.HIGH)
 
@@ -344,6 +347,7 @@ cancelar a execução ao iniciar:
 
 retomar a execução normal:
 
+    file.rename('not_ok.flag','ok.flag'); print(node.LFS.reload("lfs.img"))
     file.rename('not_ok.flag','ok.flag'); node.restart()
 
 para acertar o ssid do wifi:

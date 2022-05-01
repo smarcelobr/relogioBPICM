@@ -14,7 +14,7 @@ do
     require("relogioInternet")
     --require("configuracoes")
     require("rencoder")
-    require("telnet"):open()
+    --require("telnet"):open()
     require("webservices")
 
     led.piscar("loading")
@@ -35,9 +35,11 @@ do
     end
 
     local function printStatusJson()
-        local ok, json = pcall(sjson.encode, status())
-        print(json)
-        json = nil
+        node.task.post(node.task.LOW_PRIORITY, function()
+            local ok, json = pcall(sjson.encode, status())
+            print(json)
+            json = nil
+        end)
     end
 
     local function calcDif(gmin1, gmin2)
