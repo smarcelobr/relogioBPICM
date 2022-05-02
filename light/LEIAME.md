@@ -49,6 +49,23 @@ o conteúdo para ser copiado para o SSPIFS do nodemcu.
 
 ### Deploy
 
-    $ cd /home/sergio/IdeaProjects/relogioBPICM/light
-    $ nodemcu-tool -p COM3 upload *.lua
-    $ nodemcu-tool -p COM3 
+    [cmd / XeonLing ]
+    D:\>cd D:\smarc\Projetos\github\smarcelobr\relogioBPICM\light
+    D:\smarc\Projetos\github\smarcelobr\relogioBPICM\light>nodemcu-tool -p COM3 upload out/*
+    [NodeMCU-Tool]~ Connected
+    [device]      ~ Arch: esp8266 | Version: 3.0.0 | ChipID: 0x64b562 | FlashID: 0x16405e
+    [NodeMCU-Tool]~ Uploading "out/config.lua" >> "config.lua"...
+    [connector]   ~ Transfer-Mode: base64
+    [NodeMCU-Tool]~ Uploading "out/init.lua" >> "init.lua"...
+    [NodeMCU-Tool]~ Uploading "out/lfs.img" >> "lfs.img"...
+    [NodeMCU-Tool]~ Uploading "out/util.lua" >> "util.lua"...
+    [NodeMCU-Tool]~ Bulk File Transfer complete!
+    [NodeMCU-Tool]~ disconnecting
+
+### LFS load 
+
+    [cmd / XeonLing ]
+    D:\smarc\Projetos\github\smarcelobr\relogioBPICM\light>nodemcu-tool -p COM3 terminal
+    [terminal]    ~ Starting Terminal Mode - press ctrl+c to exit
+    
+    > file.rename('not_ok.flag','ok.flag'); print(node.LFS.reload("lfs.img"))

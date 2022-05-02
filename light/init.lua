@@ -10,6 +10,9 @@ do
   gpio.mode(minutosPin, gpio.INT, gpio.PULLUP)
   gpio.mode(horaPin, gpio.INPUT, gpio.PULLUP)
 
+  -- desliga motor
+  gpio.write(relePin, motorOFF)
+
   local tmrStartup = tmr.create()
 
   function startup()
@@ -19,6 +22,7 @@ do
     else
 	    print("Ok")
 	    file.close("ok.flag")
+	    file.rename('ok.flag','not_ok.flag') -- se travar não reinicia
 	    -- the actual application is stored in 'application.lua'
 	    pcall(node.LFS.get("_init"))
 
@@ -34,7 +38,7 @@ do
   print("file.rename('ok.flag','not_ok.flag')")
   print("...")
   
-  if not tmrStartup:alarm(5*1000, tmr.ALARM_SINGLE, startup) -- 5 segundos
+  if not tmrStartup:alarm(3*1000, tmr.ALARM_SINGLE, startup) -- 3 segundos
   then
     print("init.lua: Problemas no tmrStartup")
   end

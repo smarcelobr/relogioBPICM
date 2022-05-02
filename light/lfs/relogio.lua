@@ -1,73 +1,184 @@
 do
     -- carrega as configurações
-    local config = require('config.lua')
+    local config = require('config')
 
-    -- usDelay do motor -
-    local P_Delay_Min = 800 * 1000 -- 800000μs => 800ms => 0.8seg
-    local lastHrLevel = gpio.LOW
-
-    function debounce (func, usDelay)
-        local last = 0
-        local delay = usDelay -- 50000 = 50ms * 1000 as tmr.now() has μs resolution
-
-        return function(...)
-            local now = tmr.now()
-            local delta = now - last
-            if delta < 0 then
-                delta = delta + 2147483647
-            end
-            --[[ proposed because of delta rolling over,
-            https://github.com/hackhitchin/esp8266-co-uk/issues/2
-            --]]
-            if (delta < delay) then
-                return
-            end
-
-            if func(...) then
-                -- a funcao deve retornar true para evitar o bounce
-                last = now
-            end
-        end
-    end
-
-    local function ligarMotor()
+    local motor = {}
+    function motor.ligar()
       gpio.write(relePin, motorON)
-      motorLigado = true;
+      motorLigado = true
       gpio.write(ledPin, ledON)
     end
 
-    local function desligarMotor()
+    function motor.desligar()
       gpio.write(relePin, motorOFF)
       motorLigado = false
       gpio.write(ledPin, ledOFF)
     end
 
-    local function onMinutoDetected(level, when, eventCount)
-        if (level == gpio.LOW) then
-          print('minuto')
-          print(level, when, eventCount)
+    -- encoder
+    local encoder={}
+    local pMinuto = 0;  -- valor dos minutos no encoder (sem diferenca)
+    local pHora = nil;  -- valor das horas no encoder (sem diferenca)
+    local P_Delay_Min = 800 * 1000 -- 800000μs => 800ms => 0.8seg
+    local lastHrLevel = gpio.read(horaPin)
+    local cwHTbl = { -- clockwise table
+        h0246810 = 0,
+        h02810 = 1,
+        h04610 = 2,
+        h02410 = 3,
+        h026810 = 4,
+        h04810 = 5,
+        h024610 = 6,
+        h0210 = 7,
+        h046810 = 8,
+        h024810 = 9,
+        h02610 = 10,
+        h0410 = 11
+    }
 
-          local hrLevel = gpio.read(horaPin)
-          if (lastHrLevel == gpio.HIGH) and (hrLevel == gpio.LOW) then
-            print('hora')
-          end
-          lastHrLevel = hrLevel
+    local HorMinCode = {
+       minCount = 100,
+       minArray = {},
+       currHour = 'n/a',
+       ultimaHoraDetectada = nil
+    }
 
-          if not tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
-                              -- desliga o motor apos 500ms para distanciar um pouco do edge.
-                              desligarMotor()
-                          end) then
-            -- timer não funcionou... desliga agora.
-            desligarMotor()
-          end
-
-          return true
-        else
-          return false
-        end
+    function encoder.GMIN()
+        -- usando 'and', se pHora é nil, retorna nil.
+        return pHora and (((pHora % 12) * 60) + pMinuto + config.difMinutos) % 720
     end
 
-    lastHrLevel = gpio.read(horaPin)
+  local function calcDif(gmin1, gmin2)
+      -- se +, roda ccw para ajuste
+      -- se -, roda cw para ajuste
+      local difs = { gmin1 - gmin2,
+                     gmin1 - (720 + gmin2),
+                     (gmin1 + 720) - gmin2
+      }
+
+      local menorDif = difs[1]
+      for i, dif in ipairs(difs) do
+          if math.abs(menorDif) > math.abs(dif) then
+              menorDif = dif
+          end
+      end
+      return menorDif
+  end
+
+  function calcDifGMIN()
+     local rtcGMIN, newSec = sntpGMIN()
+     local encoderGMIN = encoder.GMIN()
+
+     local difGMIN = nil
+     if (encoderGMIN ~= nil and rtcGMIN ~= nil) then
+         -- calcula atraso ou adianto
+         difGMIN = calcDif(encoderGMIN, rtcGMIN)
+     end
+     return difGMIN, newSec
+  end
+
+  function debounce (func, usDelay)
+     local last = 0
+     local delay = usDelay -- 50000 = 50ms * 1000 as tmr.now() has μs resolution
+
+     return function(...)
+         local now = tmr.now()
+         local delta = now - last
+         if delta < 0 then
+             delta = delta + 2147483647
+         end
+         --[[ proposed because of delta rolling over,
+         https://github.com/hackhitchin/esp8266-co-uk/issues/2
+         --]]
+         if (delta < delay) then
+             return
+         end
+
+         if func(...) then
+             -- a funcao deve retornar true para evitar o bounce
+             last = now
+         end
+     end
+  end
+
+  local function verificaHora()
+     -- terminou de codificar a hora
+     HorMinCode.currHour = 'h'
+     for k, v in pairs(HorMinCode.minArray) do
+         HorMinCode.currHour = HorMinCode.currHour .. v
+     end
+     print(HorMinCode.currHour)
+
+     local lHoraDetect = cwHTbl[HorMinCode.currHour]
+
+     if (lHoraDetect ~= nil) then
+         if pHora == nil or  -- acerta a hora se não estiver estabelecida
+                 (HorMinCode.ultimaHoraDetectada and -- ou confere e acerta pHora a cada duas horas
+                 lHoraDetect == ((HorMinCode.ultimaHoraDetectada + 1) % 12)) then
+             if pHora ~= lHoraDetect then
+                 -- ajuste da hora dos ponteiros na conferencia.
+                 pHora = lHoraDetect
+             end
+             pMinuto = 0
+         end
+         HorMinCode.ultimaHoraDetectada = lHoraDetect
+     end
+  end
+
+  local function onHoraDetected()
+     if (HorMinCode.minCount > 11) then
+        -- hora desconhecida, pois, começou o novo calculo agora
+        HorMinCode.currHour = 'n/a'
+        HorMinCode.minCount = 0
+        HorMinCode.minArray = {}
+     end
+     table.insert(HorMinCode.minArray, HorMinCode.minCount)
+     verificaHora()
+  end
+
+  local function desligaPonteiroSeMinutoCerto()
+     local difGMIN = calcDifGMIN()
+     if difGMIN ~= nil then
+       if difGMIN == 0 and pHora ~= nil then
+           -- se já detectou a hora, desliga o motor se não houver diferenca entre encoder e hora da internet.
+           if not tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
+                               -- desliga o motor apos 500ms para distanciar um pouco do edge.
+                               motor.desligar()
+                           end) then
+             -- timer não funcionou... desliga agora.
+             motor.desligar()
+           end
+       end
+     end
+  end
+
+  local function onMinutoDetected(level, when, eventCount)
+     if (level == gpio.LOW) then
+       print((pHora or '??') .. ':' .. pMinuto)
+
+       pMinuto = pMinuto + 1
+       if (pMinuto >= 60) then
+           pHora = pHora and (pHora + 1)
+           pMinuto = 0
+       end
+       if (pHora or 0) > 11 then
+           pHora = 0
+       end
+
+       HorMinCode.minCount = HorMinCode.minCount + 1
+       local hrLevel = gpio.read(horaPin)
+       if (lastHrLevel == gpio.HIGH) and (hrLevel == gpio.LOW) then
+          node.task.post(node.task.MEDIUM_PRIORITY,onHoraDetected)
+       end
+       lastHrLevel = hrLevel
+
+       node.task.post(node.task.MEDIUM_PRIORITY,desligaPonteiroSeMinutoCerto)
+
+       return true
+     else
+       return false
+     end
+  end
 
     gpio.trig(minutosPin, "down", debounce(onMinutoDetected, P_Delay_Min))
 
@@ -94,7 +205,7 @@ do
     if (not sntpSucesso) then
       return nil
     end
-    local local_now = rtctime.get() + (difTimezone*60) -- converte a diferença de minutos para segundos.
+    local local_now = rtctime.get() + (config.difTimezone*60) -- converte a diferença de minutos para segundos.
     local tm = rtctime.epoch2cal(local_now)
 
     return ((tm["hour"]%12)*60) + tm["min"], tm["sec"]
@@ -127,43 +238,28 @@ do
   wifi.sta.connect(wifiOnConnect)
 
   -- acionaPonteiro
-  local function calcDif(gmin1, gmin2)
-      -- se +, roda ccw para ajuste
-      -- se -, roda cw para ajuste
-      local difs = { gmin1 - gmin2,
-                     gmin1 - (720 + gmin2),
-                     (gmin1 + 720) - gmin2
-      }
-
-      local menorDif = difs[1]
-      for i, dif in ipairs(difs) do
-          if math.abs(menorDif) > math.abs(dif) then
-              menorDif = dif
-          end
-      end
-      return menorDif
-  end
-
   local motorLigado = false;
-    local function acionaPonteiro(ptrTimer)
+  local function acionaPonteiro(ptrTimer)
 
-        local rtcGMIN, newSec = sntpGMIN()
+     local difGMIN, newSec = calcDifGMIN()
 
-        if (newSec ~= nil) then
-            local newInterval = math.max((60 - newSec), 5) * 1000
-            ptrTimer:interval(newInterval)
-        end
+     if (newSec ~= nil) then
+        local newInterval = math.max((60 - newSec), 5) * 1000
+        ptrTimer:interval(newInterval)
+     end
 
-        if not motorLigado then
-          if (difGMIN < 0) then -- se atrasado ou certo
-            ligarMotor()
-          end
-        else
-           -- motor ainda ligado? falha: para tudo.
+     if not motorLigado then
+       if difGMIN~=nil and difGMIN < 0 then -- se atrasado ou certo
+         motor.ligar()
+       end
+     else
+        if (pHora ~= nil) then
+           -- motor ainda ligado e não está buscando hora? falha: para tudo.
            ptrTimer:unregister()
-           desligarMotor()
+           motor.desligar()
         end
-    end
+     end
+  end
 
   -- time a cada minuto
   local ponteiroTimer = tmr.create()
@@ -172,5 +268,5 @@ do
       print("problemas no ponteiroTimer")
   end
 
-  ligarMotor()
+  motor.ligar()
 end

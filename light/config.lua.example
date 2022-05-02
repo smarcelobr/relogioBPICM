@@ -1,5 +1,10 @@
 --[[
  Todas as configurações de ambiente ficam nesse arquivo.
+
+ Este é um exemplo de arquivo de configuração. Renomeie-o para 'config.lua' e
+ faça as devidas edições.
+
+ Não o adicione no git por conter informações sensíveis como senhas de wifi.
 --]]
 local config = {}
 
@@ -7,5 +12,11 @@ config.wifi = {
   ssid = "my-wifi-ssid",
   pwd = "my-wifi-pass"
 }
+
+-- diferença entre a hora Local e a hora do encoder
+config.difMinutos=0
+
+-- diferença entre a hora UTC e a hora Local
+config.difTimezone=-180
 
 return config;

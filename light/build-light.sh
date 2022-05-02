@@ -17,9 +17,10 @@ if [ ! -d out ]; then
 fi
 
 echo Copiando conteudo lua ...
-# copia conteudo lua
+# copia conteudo lua para SPIFFS
 cp init.lua ./out/
 cp util.lua ./out/
+cp config.lua ./out/
 
 # cria imagem LFS
 echo Criando imagem LFS ...
