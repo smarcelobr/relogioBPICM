@@ -1,6 +1,7 @@
 do
     -- carrega as configurações
     local config = require('config')
+    require("telnet"):open()
 
     local motor = {}
     function motor.ligar()
@@ -137,25 +138,22 @@ do
   end
 
   local function desligaPonteiroSeMinutoCerto()
-     local difGMIN = calcDifGMIN()
-     if difGMIN ~= nil then
-       if difGMIN == 0 and pHora ~= nil then
-           -- se já detectou a hora, desliga o motor se não houver diferenca entre encoder e hora da internet.
-           if not tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
-                               -- desliga o motor apos 500ms para distanciar um pouco do edge.
-                               motor.desligar()
-                           end) then
-             -- timer não funcionou... desliga agora.
-             motor.desligar()
-           end
+    local difGMIN = calcDifGMIN()
+    if (difGMIN or 0) >= 0 and pHora ~= nil then
+       -- se já detectou a hora, desliga o motor se os ponteiros estiverem certos ou adiantados entre encoder e hora da internet.
+       if not tmr.create():alarm(500, tmr.ALARM_SINGLE, function()
+                           -- desliga o motor apos 500ms para distanciar um pouco do edge.
+                           motor.desligar()
+                       end) then
+         -- timer não funcionou... desliga agora.
+         motor.desligar()
        end
-     end
+    end
+    print((pHora or '??') .. ':' .. pMinuto)
   end
 
   local function onMinutoDetected(level, when, eventCount)
      if (level == gpio.LOW) then
-       print((pHora or '??') .. ':' .. pMinuto)
-
        pMinuto = pMinuto + 1
        if (pMinuto >= 60) then
            pHora = pHora and (pHora + 1)
@@ -164,6 +162,7 @@ do
        if (pHora or 0) > 11 then
            pHora = 0
        end
+       -- não usar print((pHora or '??') .. ':' .. pMinuto) dentro de interrupt handler
 
        HorMinCode.minCount = HorMinCode.minCount + 1
        local hrLevel = gpio.read(horaPin)
@@ -190,12 +189,15 @@ do
 
   -- funcao quando o sntp sincroniza a hora
   local function sntpSyncSuccess(sec, usec, server, info)
+    print('sntp:' .. (sec or 0))
     sntpSucesso = true
   end
 
   local function sntpSyncError(codError, complemento)
+    print('prob 0x0322:'..(codError or '?')..'-'..(complemento or '?'))
 	if (codError == 4) then
 		-- 4 = timeout
+		sntpSucesso=false
 		sntp.sync(NTPlist, sntpSyncSuccess, sntpSyncError, 1) -- com autorepeat
 		sntpAcionado=true
 	end
@@ -203,7 +205,7 @@ do
 
   sntpGMIN = function ()
     if (not sntpSucesso) then
-      return nil
+      return nil, nil
     end
     local local_now = rtctime.get() + (config.difTimezone*60) -- converte a diferença de minutos para segundos.
     local tm = rtctime.epoch2cal(local_now)
@@ -227,7 +229,7 @@ do
 	-- inicia o sync com SNTP caso já não tenha iniciado
 	if not sntpAcionado then
         sntp.sync(NTPlist, sntpSyncSuccess, sntpSyncError, 1) -- com autorepeat
-        sntpAcionado = false
+        sntpAcionado = true
     end
   end
 
@@ -249,7 +251,7 @@ do
      end
 
      if not motorLigado then
-       if difGMIN~=nil and difGMIN < 0 then -- se atrasado ou certo
+       if (pHora == nil) or ((difGMIN or 0) < 0) then -- se atrasado ou certo
          motor.ligar()
        end
      else
@@ -257,6 +259,7 @@ do
            -- motor ainda ligado e não está buscando hora? falha: para tudo.
            ptrTimer:unregister()
            motor.desligar()
+           print('prob 1672')
         end
      end
   end
@@ -268,5 +271,4 @@ do
       print("problemas no ponteiroTimer")
   end
 
-  motor.ligar()
 end

@@ -22,7 +22,6 @@ do
     else
 	    print("Ok")
 	    file.close("ok.flag")
-	    file.rename('ok.flag','not_ok.flag') -- se travar não reinicia
 	    -- the actual application is stored in 'application.lua'
 	    pcall(node.LFS.get("_init"))
 

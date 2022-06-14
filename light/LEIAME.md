@@ -43,7 +43,7 @@ o conteúdo para ser copiado para o SSPIFS do nodemcu.
 
     [No terminal Ubuntu / XeonLing]
 
-    $ cd /home/sergio/IdeaProjects/relogioBPICM/light
+    $ cd //mnt/d/smarc/Projetos/github/smarcelobr/relogioBPICM/light
     $ ./build-light.sh
 
 
